@@ -2,10 +2,9 @@ package apis
 
 import (
 	"encoding/json"
-	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -18,14 +17,10 @@ func NewServer(addr string, log *logrus.Logger) error {
 	// API end point
 	r.GET("/api/v1/get_data", GetUserData)
 	//r.POST("api/v1/winning_number" WinningNumber)
+	//r.POST("/api/v1/get_data_eventId", GetDataByEventId)
 
 	return r.Run(addr)
 
-}
-
-type winningNumber struct {
-	EventId string `json:"eventId"`
-	Numbers []int  `json:"numbers"`
 }
 
 type User struct {
@@ -35,25 +30,24 @@ type User struct {
 	IdProofNumber string `json:"idproof"`
 }
 
-// type Users struct {
-// 	Users []User `json:"users"`
-// }
-
 func GetUserData(c *gin.Context) {
 
-	content, err := os.ReadFile(".\\src\\apis\\users.json")
+	content, err := ioutil.ReadFile(".\\src\\apis\\users.json")
 	if err != nil {
 		log.Fatal("Error when opening file: ", err)
+		return
 	}
-	var user User
-	err = json.Unmarshal(content, &user)
-	if err != nil {
-		log.Fatal("Error during Unmarshal(): ", err)
+
+	var users []User
+
+	err2 := json.Unmarshal(content, &users)
+	if err2 != nil {
+		log.Fatal("Error during Unmarshal(): ", err2)
+		return
 	}
-	fmt.Println(user.ContactNumber)
-	fmt.Println(user.Name)
-	c.JSON(http.StatusOK, user)
+	c.JSON(http.StatusOK, users)
 }
 
-func WinningNumber(c *gin.Context) {
-}
+// func GetDataByEventId(c *gin.Context) {
+
+// }
