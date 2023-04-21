@@ -16,15 +16,15 @@ func NewServer(addr string, log *logrus.Logger) error {
 
 	// API end point
 	r.GET("/api/v1/get_user_data", GetUserData)
-	//r.POST("api/v1/winning_number" WinningNumber)
 	r.GET("/api/v1/get_event_data", GetEventData)
+	r.POST("api/v1/event_data_byName", EventDataByName)
 
 	return r.Run(addr)
 
 }
 
 type User struct {
-	Id            string `json:"id"`
+	Id            string `json:"userid"`
 	Name          string `json:"name"`
 	ContactNumber string `json:"number"`
 	IdProofNumber string `json:"idproof"`
@@ -32,7 +32,7 @@ type User struct {
 
 func GetUserData(c *gin.Context) {
 
-	content, err := os.ReadFile(".\\src\\apis\\users.json")
+	content, err := os.ReadFile(".\\src\\apis\\usersinfo.json")
 	if err != nil {
 		log.Fatal("Error when opening file: ", err)
 		return
@@ -49,10 +49,14 @@ func GetUserData(c *gin.Context) {
 }
 
 type Event struct {
-	EventName string `json:"eventname"`
-	EventId   string `json:"eventid"`
-	Date      string `json:"date"`
-	WinNumber []int  `json:"winnumber"`
+	EventName    string `json:"eventname"`
+	EventId      string `json:"eventid"`
+	Date         string `json:"date"`
+	WinNumber    []int  `json:"winnumber"`
+	Participants []struct {
+		Id           string `json:"userid"`
+		StakeNumbers []int  `json:"stakenumber"`
+	} `json:"participants"`
 }
 
 func GetEventData(c *gin.Context) {
@@ -70,4 +74,8 @@ func GetEventData(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, events)
+}
+
+func EventDataByName(c *gin.Context) {
+
 }

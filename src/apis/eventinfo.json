@@ -2,6 +2,108 @@
     {
         "eventname": "Monday Special",
         "eventid": "232432",
+        "date": "17-April-2024",
+        "winnumber": [54,33,65,23,87],
+        "participants": [
+            {
+                "userid": "1",
+                "stakenumber": [23,43,15,65,89]
+
+            },
+            {
+                "userid":"2",
+                "stakenumber": [34,65,23,43,54]
+            }
+        ]
+    },
+    {
+        "eventname": "Lucky Tuesday",
+        "eventid": "654344",
+        "date": "18-April-2024",
+        "winnumber": [21,44,23,10,90],
+        "participants": [
+            {
+                "userid": "2",
+                "stakenumber": [2,6,3,7,9]
+
+            },
+            {
+                "userid":"3",
+                "stakenumber": [1,90,89,2,3]
+            }
+        ]
+    },
+    {
+        "eventname": "Midweek",
+        "eventid": "876553",
+        "date": "19-April-2024",
+        "winnumber": [76,32,66,34,11],
+        "participants": [
+            {
+                "userid": "3",
+                "stakenumber": [1,2,3,4,5]
+
+            },
+            {
+                "userid":"4",
+                "stakenumber": [90,89,87,86,85]
+            }
+        ]
+    },
+    {
+        "eventname": "Fortune Thursday",
+        "eventid": "9,82,45,27,83",
+        "date": "20-April-2024",
+        "winnumber": [21,44,23,10,90],
+        "participants": [
+            {
+                "userid": "4",
+                "stakenumber": [23,43,15,65,89]
+
+            },
+            {
+                "userid":"2",
+                "stakenumber": [34,65,23,43,54]
+            }
+        ]
+    },
+    {
+        "eventname": "Friday Bonanza",
+        "eventid": "604093",
+        "date": "21-April-2024",
+        "winnumber": [24,86,31,52,7],
+        "participants": [
+            {
+                "userid": "3",
+                "stakenumber": [23,43,15,65,89]
+
+            },
+            {
+                "userid":"2",
+                "stakenumber": [34,65,23,43,54]
+            }
+        ]
+    },
+    {
+        "eventname": "National Weekly",
+        "uniqueeventid": "836242",
+        "date": "22-April-2024",
+        "winnumber": [27,2,7,17,14],
+        "participants": [
+            {
+                "userid": "2",
+                "stakenumber": [23,43,42,67,69]
+
+            },
+            {
+                "userid":"3",
+                "stakenumber": [56,13,1,5,8]
+            }
+        ]
+    },
+    {
+        "eventname": "Monday Special",
+        "eventid": "232432",
         "date": "24-April-2024",
         "winnumber": [54,33,65,23,87]
     },
