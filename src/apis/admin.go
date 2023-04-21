@@ -17,7 +17,7 @@ func NewServer(addr string, log *logrus.Logger) error {
 	// API end point
 	r.GET("/api/v1/get_user_data", GetUserData)
 	r.GET("/api/v1/get_event_data", GetEventData)
-	r.POST("api/v1/event_data_byName", EventDataByName)
+	r.POST("api/v1/event_data_byName", GetEventDataByName)
 
 	return r.Run(addr)
 
@@ -42,7 +42,7 @@ func GetUserData(c *gin.Context) {
 
 	err2 := json.Unmarshal(content, &users)
 	if err2 != nil {
-		log.Fatal("Error during Unmarshal(): ", err2)
+		log.Fatal("Error during Unmarshal: ", err2)
 		return
 	}
 	c.JSON(http.StatusOK, users)
@@ -56,7 +56,7 @@ type Event struct {
 	Participants []struct {
 		Id           string `json:"userid"`
 		StakeNumbers []int  `json:"stakenumber"`
-	} `json:"participants"`
+	} `json:"participants,omitempty"`
 }
 
 func GetEventData(c *gin.Context) {
@@ -70,12 +70,48 @@ func GetEventData(c *gin.Context) {
 
 	err2 := json.Unmarshal(content, &events)
 	if err2 != nil {
-		log.Fatal("Error during Unmarshal(): ", err2)
+		log.Fatal("Error during Unmarshal: ", err2)
 		return
 	}
 	c.JSON(http.StatusOK, events)
 }
 
-func EventDataByName(c *gin.Context) {
+type EventDataByName struct {
+	EventName    string `json:"eventname"`
+	EventId      string `json:"eventid"`
+	Date         string `json:"date"`
+	WinNumber    []int  `json:"winnumber"`
+	Participants []struct {
+		Id           string `json:"userid"`
+		StakeNumbers []int  `json:"stakenumber"`
+	} `json:"participants,omitempty"`
+}
+
+type RequestEventDataByName struct {
+	EventName string `json:"eventname"`
+}
+
+func GetEventDataByName(c *gin.Context) {
+	content, err := os.ReadFile(".\\src\\apis\\eventinfo.json")
+	if err != nil {
+		log.Fatal("Error when opening file: ", err)
+		return
+	}
+
+	var eventdatabyname []EventDataByName
+	var requesteventdatabyname RequestEventDataByName
+
+	if err := c.ShouldBind(&requesteventdatabyname); err != nil {
+		c.JSON(http.StatusBadRequest, "bad Format")
+		return
+	}
+
+	err2 := json.Unmarshal(content, &eventdatabyname)
+	if err2 != nil {
+		log.Fatal("Error during Unmarshal: ", err2)
+		return
+	}
+
+	c.JSON(http.StatusOK, eventdatabyname)
 
 }
