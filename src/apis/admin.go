@@ -2,9 +2,9 @@ package apis
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -15,9 +15,9 @@ func NewServer(addr string, log *logrus.Logger) error {
 	r := gin.Default()
 
 	// API end point
-	r.GET("/api/v1/get_data", GetUserData)
+	r.GET("/api/v1/get_user_data", GetUserData)
 	//r.POST("api/v1/winning_number" WinningNumber)
-	//r.POST("/api/v1/get_data_eventId", GetDataByEventId)
+	r.GET("/api/v1/get_event_data", GetEventData)
 
 	return r.Run(addr)
 
@@ -32,7 +32,7 @@ type User struct {
 
 func GetUserData(c *gin.Context) {
 
-	content, err := ioutil.ReadFile(".\\src\\apis\\users.json")
+	content, err := os.ReadFile(".\\src\\apis\\users.json")
 	if err != nil {
 		log.Fatal("Error when opening file: ", err)
 		return
@@ -48,6 +48,26 @@ func GetUserData(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 
-// func GetDataByEventId(c *gin.Context) {
+type Event struct {
+	EventName string `json:"eventname"`
+	EventId   string `json:"eventid"`
+	Date      string `json:"date"`
+	WinNumber []int  `json:"winnumber"`
+}
 
-// }
+func GetEventData(c *gin.Context) {
+	content, err := os.ReadFile(".\\src\\apis\\eventinfo.json")
+	if err != nil {
+		log.Fatal("Error when opening file: ", err)
+		return
+	}
+
+	var events []Event
+
+	err2 := json.Unmarshal(content, &events)
+	if err2 != nil {
+		log.Fatal("Error during Unmarshal(): ", err2)
+		return
+	}
+	c.JSON(http.StatusOK, events)
+}
