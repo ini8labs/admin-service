@@ -18,6 +18,7 @@ func NewServer(addr string, log *logrus.Logger) error {
 	r.GET("/api/v1/user_data", UserData)
 	r.GET("/api/v1/event_data", EventData)
 	r.POST("api/v1/event_data_byName", EventDataByName)
+	r.POST("/api/v1/event_data_byId", EventDataById)
 
 	return r.Run(addr)
 
@@ -83,17 +84,6 @@ func EventData(c *gin.Context) {
 	c.JSON(http.StatusOK, events)
 }
 
-type EventDatabyName struct {
-	EventName    string `json:"eventname"`
-	EventId      string `json:"eventid"`
-	Date         string `json:"date"`
-	WinNumber    []int  `json:"winnumber"`
-	Participants []struct {
-		Id           string `json:"userid"`
-		StakeNumbers []int  `json:"stakenumber"`
-	} `json:"participants,omitempty"`
-}
-
 type RequestEventDataByName struct {
 	EventName string `json:"eventname,omitempty"`
 }
@@ -101,8 +91,7 @@ type RequestEventDataByName struct {
 func EventDataByName(c *gin.Context) {
 
 	var requestdata RequestEventDataByName
-	var eventdatabyname []EventDatabyName
-	//var eventdatabyname map[string]interface{}
+	var eventdatabyname []Event
 
 	content, err := os.ReadFile(".\\src\\apis\\eventinfo.json")
 
@@ -122,10 +111,47 @@ func EventDataByName(c *gin.Context) {
 		return
 	}
 
-	var expectedData []EventDatabyName
+	var expectedData []Event
 	for i := 0; i < len(eventdatabyname); i++ {
 		if eventdatabyname[i].EventName == requestdata.EventName {
 			expectedData = append(expectedData, eventdatabyname[i])
+		}
+	}
+
+	c.JSON(http.StatusOK, expectedData)
+}
+
+type RequestEventDataById struct {
+	EventId string `json:"eventid,omitempty"`
+}
+
+func EventDataById(c *gin.Context) {
+
+	var requestdata RequestEventDataById
+	var eventdatabyid []Event
+
+	content, err := os.ReadFile(".\\src\\apis\\eventinfo.json")
+
+	if err != nil {
+		log.Fatal("Error when opening file: ", err)
+		return
+	}
+
+	if err := c.BindJSON(&requestdata); err != nil {
+		c.JSON(http.StatusBadRequest, "bad Format")
+		return
+	}
+
+	err2 := json.Unmarshal(content, &eventdatabyid)
+	if err2 != nil {
+		log.Fatal("Error during Unmarshal: ", err2)
+		return
+	}
+
+	var expectedData []Event
+	for i := 0; i < len(eventdatabyid); i++ {
+		if eventdatabyid[i].EventId == requestdata.EventId {
+			expectedData = append(expectedData, eventdatabyid[i])
 		}
 	}
 
