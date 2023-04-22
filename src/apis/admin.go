@@ -2,6 +2,7 @@ package apis
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -15,9 +16,9 @@ func NewServer(addr string, log *logrus.Logger) error {
 	r := gin.Default()
 
 	// API end point
-	r.GET("/api/v1/get_user_data", GetUserData)
-	r.GET("/api/v1/get_event_data", GetEventData)
-	r.POST("api/v1/event_data_byName", GetEventDataByName)
+	r.GET("/api/v1/user_data", UserData)
+	r.GET("/api/v1/event_data", EventData)
+	r.POST("api/v1/event_data_byName", EventDataByName)
 
 	return r.Run(addr)
 
@@ -30,9 +31,10 @@ type User struct {
 	IdProofNumber string `json:"idproof"`
 }
 
-func GetUserData(c *gin.Context) {
+func UserData(c *gin.Context) {
 
 	content, err := os.ReadFile(".\\src\\apis\\usersinfo.json")
+
 	if err != nil {
 		log.Fatal("Error when opening file: ", err)
 		return
@@ -41,10 +43,12 @@ func GetUserData(c *gin.Context) {
 	var users []User
 
 	err2 := json.Unmarshal(content, &users)
+
 	if err2 != nil {
 		log.Fatal("Error during Unmarshal: ", err2)
 		return
 	}
+
 	c.JSON(http.StatusOK, users)
 }
 
@@ -59,8 +63,10 @@ type Event struct {
 	} `json:"participants,omitempty"`
 }
 
-func GetEventData(c *gin.Context) {
+func EventData(c *gin.Context) {
+
 	content, err := os.ReadFile(".\\src\\apis\\eventinfo.json")
+
 	if err != nil {
 		log.Fatal("Error when opening file: ", err)
 		return
@@ -69,14 +75,16 @@ func GetEventData(c *gin.Context) {
 	var events []Event
 
 	err2 := json.Unmarshal(content, &events)
+
 	if err2 != nil {
 		log.Fatal("Error during Unmarshal: ", err2)
 		return
 	}
+
 	c.JSON(http.StatusOK, events)
 }
 
-type EventDataByName struct {
+type EventDatabyName struct {
 	EventName    string `json:"eventname"`
 	EventId      string `json:"eventid"`
 	Date         string `json:"date"`
@@ -88,20 +96,23 @@ type EventDataByName struct {
 }
 
 type RequestEventDataByName struct {
-	EventName string `json:"eventname"`
+	EventName string `json:"eventname,omitempty"`
 }
 
-func GetEventDataByName(c *gin.Context) {
+func EventDataByName(c *gin.Context) {
+
+	var requestdata RequestEventDataByName
+	var eventdatabyname []EventDatabyName
+	//var eventdatabyname map[string]interface{}
+
 	content, err := os.ReadFile(".\\src\\apis\\eventinfo.json")
+
 	if err != nil {
 		log.Fatal("Error when opening file: ", err)
 		return
 	}
 
-	var eventdatabyname []EventDataByName
-	var requesteventdatabyname RequestEventDataByName
-
-	if err := c.ShouldBind(&requesteventdatabyname); err != nil {
+	if err := c.BindJSON(&requestdata); err != nil {
 		c.JSON(http.StatusBadRequest, "bad Format")
 		return
 	}
@@ -112,6 +123,13 @@ func GetEventDataByName(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, eventdatabyname)
-
+	var expectedData []EventDatabyName
+	for i := 0; i < len(eventdatabyname); i++ {
+		if eventdatabyname[i].EventName == requestdata.EventName {
+			expectedData = append(expectedData, eventdatabyname[i])
+		}
+	}
+	fmt.Println(eventdatabyname)
+	fmt.Println(eventdatabyname[0].EventName)
+	c.JSON(http.StatusOK, expectedData)
 }
