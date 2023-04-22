@@ -1,13 +1,13 @@
 package apis
 
 import (
-	"encoding/json"
-	"log"
+	"fmt"
 	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/ini8labs/lsdb"
 	"github.com/sirupsen/logrus"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func NewServer(addr string, log *logrus.Logger) error {
@@ -15,145 +15,237 @@ func NewServer(addr string, log *logrus.Logger) error {
 	r := gin.Default()
 
 	// API end point
-	r.GET("/api/v1/user_data", UserData)
-	r.GET("/api/v1/event_data", EventData)
-	r.POST("api/v1/event_data_byName", EventDataByName)
-	r.POST("/api/v1/event_data_byId", EventDataById)
-
+	//r.GET("/api/v1/user_info", UserData)
+	r.GET("/api/v1/eventdata", GetAllEvents)
+	r.POST("/api/v1/userinfo_phonenumber", GetUserInfoByPhone)
+	r.POST("/api/v1/userinfo_govID", GetUserInfoByGovID)
+	r.POST("/api/v1/userinfo_ID", GetUserInfoByID)
+	r.POST("api/v1/eventdata_bytype", GetEventsByType)
+	r.POST("/api/v1/eventdata_bydate", GetEventsByDate)
+	r.POST("/api/v1/eventdata_byrange", GetEventsByDateRange)
+	//r.POST("/api/v1/addnewevent", AddNewEvent)
 	return r.Run(addr)
-
 }
 
-type User struct {
-	Id            string `json:"userid"`
-	Name          string `json:"name"`
-	ContactNumber string `json:"number"`
-	IdProofNumber string `json:"idproof"`
+type UserPhoneNumber struct {
+	PhoneNumber int64 `json:"phone"`
+}
+type UserGovtID struct {
+	GovtID string `json:"govId"`
+}
+type UserID struct {
+	UID primitive.ObjectID `json:"id"`
 }
 
-func UserData(c *gin.Context) {
+func GetUserInfoByPhone(c *gin.Context) {
 
-	content, err := os.ReadFile(".\\src\\apis\\usersinfo.json")
+	dbClient, err := lsdb.NewClient()
 
 	if err != nil {
-		log.Fatal("Error when opening file: ", err)
+		panic(err.Error())
+	}
+
+	if err := dbClient.OpenConnection(); err != nil {
+		panic(err.Error())
+	}
+
+	defer dbClient.CloseConnection()
+
+	var userphonenumber UserPhoneNumber
+
+	if err := c.BindJSON(&userphonenumber); err != nil {
+		c.JSON(http.StatusBadRequest, "Bad Format")
 		return
 	}
 
-	var users []User
-
-	err2 := json.Unmarshal(content, &users)
-
-	if err2 != nil {
-		log.Fatal("Error during Unmarshal: ", err2)
+	resp, err := dbClient.GetUserInfoByPhone(userphonenumber.PhoneNumber)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "something is wrong with the server")
 		return
 	}
-
-	c.JSON(http.StatusOK, users)
+	c.JSON(http.StatusOK, resp)
+	fmt.Println(resp)
 }
 
-type Event struct {
-	EventName    string `json:"eventname"`
-	EventId      string `json:"eventid"`
-	Date         string `json:"date"`
-	WinNumber    []int  `json:"winnumber"`
-	Participants []struct {
-		Id           string `json:"userid"`
-		StakeNumbers []int  `json:"stakenumber"`
-	} `json:"participants,omitempty"`
-}
+func GetUserInfoByGovID(c *gin.Context) {
 
-func EventData(c *gin.Context) {
-
-	content, err := os.ReadFile(".\\src\\apis\\eventinfo.json")
+	dbClient, err := lsdb.NewClient()
 
 	if err != nil {
-		log.Fatal("Error when opening file: ", err)
+		panic(err.Error())
+	}
+
+	if err := dbClient.OpenConnection(); err != nil {
+		panic(err.Error())
+	}
+
+	defer dbClient.CloseConnection()
+
+	var govid UserGovtID
+
+	if err := c.BindJSON(&govid); err != nil {
+		c.JSON(http.StatusBadRequest, "Bad Format")
 		return
 	}
 
-	var events []Event
-
-	err2 := json.Unmarshal(content, &events)
-
-	if err2 != nil {
-		log.Fatal("Error during Unmarshal: ", err2)
+	resp, err := dbClient.GetUserInfoByGovID(govid.GovtID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "something is wrong with the server")
 		return
 	}
-
-	c.JSON(http.StatusOK, events)
+	c.JSON(http.StatusOK, resp)
 }
 
-type RequestEventDataByName struct {
-	EventName string `json:"eventname,omitempty"`
-}
+func GetUserInfoByID(c *gin.Context) {
 
-func EventDataByName(c *gin.Context) {
-
-	var requestdata RequestEventDataByName
-	var eventdatabyname []Event
-
-	content, err := os.ReadFile(".\\src\\apis\\eventinfo.json")
+	dbClient, err := lsdb.NewClient()
 
 	if err != nil {
-		log.Fatal("Error when opening file: ", err)
+		panic(err.Error())
+	}
+
+	if err := dbClient.OpenConnection(); err != nil {
+		panic(err.Error())
+	}
+
+	defer dbClient.CloseConnection()
+
+	var userid UserID
+
+	if err := c.BindJSON(&userid); err != nil {
+		c.JSON(http.StatusBadRequest, "Bad Format")
 		return
 	}
 
-	if err := c.BindJSON(&requestdata); err != nil {
-		c.JSON(http.StatusBadRequest, "bad Format")
+	resp, err := dbClient.GetUserInfoByID(userid.UID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "something is wrong with the server")
 		return
 	}
-
-	err2 := json.Unmarshal(content, &eventdatabyname)
-	if err2 != nil {
-		log.Fatal("Error during Unmarshal: ", err2)
-		return
-	}
-
-	var expectedData []Event
-	for i := 0; i < len(eventdatabyname); i++ {
-		if eventdatabyname[i].EventName == requestdata.EventName {
-			expectedData = append(expectedData, eventdatabyname[i])
-		}
-	}
-
-	c.JSON(http.StatusOK, expectedData)
+	c.JSON(http.StatusOK, resp)
 }
 
-type RequestEventDataById struct {
-	EventId string `json:"eventid,omitempty"`
-}
+func GetAllEvents(c *gin.Context) {
 
-func EventDataById(c *gin.Context) {
-
-	var requestdata RequestEventDataById
-	var eventdatabyid []Event
-
-	content, err := os.ReadFile(".\\src\\apis\\eventinfo.json")
+	dbClient, err := lsdb.NewClient()
 
 	if err != nil {
-		log.Fatal("Error when opening file: ", err)
+		panic(err.Error())
+	}
+
+	if err := dbClient.OpenConnection(); err != nil {
+		panic(err.Error())
+	}
+
+	defer dbClient.CloseConnection()
+
+	resp, err := dbClient.GetAllEvents()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "something is wrong with the server")
 		return
 	}
 
-	if err := c.BindJSON(&requestdata); err != nil {
-		c.JSON(http.StatusBadRequest, "bad Format")
+	c.JSON(http.StatusOK, resp)
+
+}
+
+type EventType struct {
+	Type string `json:"eventtype"`
+}
+
+func GetEventsByType(c *gin.Context) {
+
+	dbClient, err := lsdb.NewClient()
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	if err := dbClient.OpenConnection(); err != nil {
+		panic(err.Error())
+	}
+
+	defer dbClient.CloseConnection()
+
+	var eventtype EventType
+
+	if err := c.BindJSON(&eventtype); err != nil {
+		c.JSON(http.StatusBadRequest, "Bad Format")
 		return
 	}
 
-	err2 := json.Unmarshal(content, &eventdatabyid)
-	if err2 != nil {
-		log.Fatal("Error during Unmarshal: ", err2)
+	resp, err := dbClient.GetEventsByType(eventtype.Type)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "something is wrong with the server")
+		return
+	}
+	c.JSON(http.StatusOK, resp)
+
+}
+
+type EventDate struct {
+	EventDate primitive.DateTime `json:"date"`
+}
+
+func GetEventsByDate(c *gin.Context) {
+
+	dbClient, err := lsdb.NewClient()
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	if err := dbClient.OpenConnection(); err != nil {
+		panic(err.Error())
+	}
+
+	defer dbClient.CloseConnection()
+
+	var eventdate EventDate
+
+	if err := c.BindJSON(&eventdate); err != nil {
+		c.JSON(http.StatusBadRequest, "Bad Format")
 		return
 	}
 
-	var expectedData []Event
-	for i := 0; i < len(eventdatabyid); i++ {
-		if eventdatabyid[i].EventId == requestdata.EventId {
-			expectedData = append(expectedData, eventdatabyid[i])
-		}
+	resp, err := dbClient.GetEventsByDate(eventdate.EventDate)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "something is wrong with the server")
+		return
+	}
+	c.JSON(http.StatusOK, resp)
+}
+
+type EventDateRange struct {
+	StartDate primitive.DateTime `json:"startdate"`
+	EndDate   primitive.DateTime `json:"enddate"`
+}
+
+func GetEventsByDateRange(c *gin.Context) {
+
+	dbClient, err := lsdb.NewClient()
+
+	if err != nil {
+		panic(err.Error())
 	}
 
-	c.JSON(http.StatusOK, expectedData)
+	if err := dbClient.OpenConnection(); err != nil {
+		panic(err.Error())
+	}
+
+	defer dbClient.CloseConnection()
+
+	var eventdaterange EventDateRange
+
+	if err := c.BindJSON(&eventdaterange); err != nil {
+		c.JSON(http.StatusBadRequest, "Bad Format")
+		return
+	}
+
+	resp, err := dbClient.GetEventByDateRange(eventdaterange.StartDate, eventdaterange.EndDate)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "something is wrong with the server")
+		return
+	}
+	c.JSON(http.StatusOK, resp)
 }
