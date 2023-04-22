@@ -2,7 +2,6 @@ package apis
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -129,7 +128,6 @@ func EventDataByName(c *gin.Context) {
 			expectedData = append(expectedData, eventdatabyname[i])
 		}
 	}
-	fmt.Println(eventdatabyname)
-	fmt.Println(eventdatabyname[0].EventName)
+
 	c.JSON(http.StatusOK, expectedData)
 }
