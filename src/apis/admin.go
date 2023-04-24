@@ -81,14 +81,6 @@ func (s Server) GetUserInfoByID(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-type EventInfo struct {
-	EventUID      primitive.ObjectID `json:"eventid"`
-	EventDate     primitive.DateTime `json:"date"`
-	Name          string             `json:"name"`
-	EventType     string             `json:"type"`
-	WinningNumber []int              `json:"winnumber,omitempty"`
-}
-
 func (s Server) GetAllEvents(c *gin.Context) {
 
 	// var eventinfo EventInfo
@@ -117,10 +109,9 @@ func (s Server) GetEventsByType(c *gin.Context) {
 }
 
 // func (s Server) GetEventsByDate(c *gin.Context) {
-// 	date := c.Query("date")
-// 	eventdate, _ := strconv.Atoi(date)
-
-// 	resp, err := s.Client.GetEventsByDate(eventdate)
+// date := c.Query("date")
+// eventdate, _ := strconv.Atoi(date)
+// resp, err := s.Client.GetEventsByDate(eventdate)
 // 	if err != nil {
 // 		c.JSON(http.StatusInternalServerError, "something is wrong with the server")
 // 		return
