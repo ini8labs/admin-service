@@ -10,25 +10,31 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func NewServer(addr string, log *logrus.Logger) error {
+type Server struct {
+	*logrus.Logger
+	*lsdb.Client
+	Addr string
+}
+
+func NewServer(server Server) error {
 
 	r := gin.Default()
 
 	// API end point
 	//r.GET("/api/v1/user_info", GetAllUserData)
-	r.GET("/api/v1/eventdata", GetAllEvents)
-	r.POST("/api/v1/userinfo_phonenumber", GetUserInfoByPhone)
-	r.POST("/api/v1/userinfo_govID", GetUserInfoByGovID)
-	r.POST("/api/v1/userinfo_ID", GetUserInfoByID)
-	r.POST("api/v1/eventdata_type", GetEventsByType)
-	r.POST("/api/v1/eventdata_date", GetEventsByDate)
-	r.POST("/api/v1/eventdata_daterange", GetEventsByDateRange)
-	r.POST("/api/v1/userinfo_eventID", GetParticipantsInfoByEventID) // not working
-	r.POST("/api/v1/add_event", AddNewEvent)
-	r.POST("/api/v1/delete_event", DeleteEvent)
-	r.POST("/api/v1/eventwinners", GetEventWinners) // will not work
-	//r.POST("/api/v1/addnewevent", AddNewEvent)
-	return r.Run(addr)
+	r.GET("/api/v1/eventdata", server.GetAllEvents)
+	r.POST("/api/v1/userinfo_phonenumber", server.GetUserInfoByPhone)
+	r.POST("/api/v1/userinfo_govID", server.GetUserInfoByGovID)
+	r.POST("/api/v1/userinfo_ID", server.GetUserInfoByID)
+	r.POST("api/v1/eventdata_type", server.GetEventsByType)
+	r.POST("/api/v1/eventdata_date", server.GetEventsByDate)
+	r.POST("/api/v1/eventdata_daterange", server.GetEventsByDateRange)
+	r.POST("/api/v1/userinfo_eventID", server.GetParticipantsInfoByEventID)
+	r.POST("/api/v1/add_event", server.AddNewEvent)
+	r.POST("/api/v1/delete_event", server.DeleteEvent)
+	r.POST("/api/v1/eventwinners", server.GetEventWinners) // will not work
+
+	return r.Run(server.Addr)
 }
 
 type UserPhoneNumber struct {
@@ -64,19 +70,7 @@ type EventWinners struct {
 	EventId primitive.ObjectID `json:"eventid"`
 }
 
-func GetUserInfoByPhone(c *gin.Context) {
-
-	dbClient, err := lsdb.NewClient()
-
-	if err != nil {
-		panic(err.Error())
-	}
-
-	if err := dbClient.OpenConnection(); err != nil {
-		panic(err.Error())
-	}
-
-	defer dbClient.CloseConnection()
+func (s Server) GetUserInfoByPhone(c *gin.Context) {
 
 	var userphonenumber UserPhoneNumber
 
@@ -85,7 +79,7 @@ func GetUserInfoByPhone(c *gin.Context) {
 		return
 	}
 
-	resp, err := dbClient.GetUserInfoByPhone(userphonenumber.PhoneNumber)
+	resp, err := s.Client.GetUserInfoByPhone(userphonenumber.PhoneNumber)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, "something is wrong with the server")
 		return
@@ -94,19 +88,7 @@ func GetUserInfoByPhone(c *gin.Context) {
 	fmt.Println(resp)
 }
 
-func GetUserInfoByGovID(c *gin.Context) {
-
-	dbClient, err := lsdb.NewClient()
-
-	if err != nil {
-		panic(err.Error())
-	}
-
-	if err := dbClient.OpenConnection(); err != nil {
-		panic(err.Error())
-	}
-
-	defer dbClient.CloseConnection()
+func (s Server) GetUserInfoByGovID(c *gin.Context) {
 
 	var govid UserGovtID
 
@@ -115,7 +97,7 @@ func GetUserInfoByGovID(c *gin.Context) {
 		return
 	}
 
-	resp, err := dbClient.GetUserInfoByGovID(govid.GovtID)
+	resp, err := s.Client.GetUserInfoByGovID(govid.GovtID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, "something is wrong with the server")
 		return
@@ -123,19 +105,7 @@ func GetUserInfoByGovID(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-func GetUserInfoByID(c *gin.Context) {
-
-	dbClient, err := lsdb.NewClient()
-
-	if err != nil {
-		panic(err.Error())
-	}
-
-	if err := dbClient.OpenConnection(); err != nil {
-		panic(err.Error())
-	}
-
-	defer dbClient.CloseConnection()
+func (s Server) GetUserInfoByID(c *gin.Context) {
 
 	var userid UserID
 
@@ -144,7 +114,7 @@ func GetUserInfoByID(c *gin.Context) {
 		return
 	}
 
-	resp, err := dbClient.GetUserInfoByID(userid.UID)
+	resp, err := s.Client.GetUserInfoByID(userid.UID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, "something is wrong with the server")
 		return
@@ -152,21 +122,9 @@ func GetUserInfoByID(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-func GetAllEvents(c *gin.Context) {
+func (s Server) GetAllEvents(c *gin.Context) {
 
-	dbClient, err := lsdb.NewClient()
-
-	if err != nil {
-		panic(err.Error())
-	}
-
-	if err := dbClient.OpenConnection(); err != nil {
-		panic(err.Error())
-	}
-
-	defer dbClient.CloseConnection()
-
-	resp, err := dbClient.GetAllEvents()
+	resp, err := s.Client.GetAllEvents()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, "something is wrong with the server")
 		return
@@ -176,20 +134,7 @@ func GetAllEvents(c *gin.Context) {
 
 }
 
-func GetEventsByType(c *gin.Context) {
-
-	dbClient, err := lsdb.NewClient()
-
-	if err != nil {
-		panic(err.Error())
-	}
-
-	if err := dbClient.OpenConnection(); err != nil {
-		panic(err.Error())
-	}
-
-	defer dbClient.CloseConnection()
-
+func (s Server) GetEventsByType(c *gin.Context) {
 	var eventtype EventType
 
 	if err := c.BindJSON(&eventtype); err != nil {
@@ -197,7 +142,7 @@ func GetEventsByType(c *gin.Context) {
 		return
 	}
 
-	resp, err := dbClient.GetEventsByType(eventtype.Type)
+	resp, err := s.Client.GetEventsByType(eventtype.Type)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, "something is wrong with the server")
 		return
@@ -206,19 +151,7 @@ func GetEventsByType(c *gin.Context) {
 
 }
 
-func GetEventsByDate(c *gin.Context) {
-
-	dbClient, err := lsdb.NewClient()
-
-	if err != nil {
-		panic(err.Error())
-	}
-
-	if err := dbClient.OpenConnection(); err != nil {
-		panic(err.Error())
-	}
-
-	defer dbClient.CloseConnection()
+func (s Server) GetEventsByDate(c *gin.Context) {
 
 	var eventdate EventDate
 
@@ -227,7 +160,7 @@ func GetEventsByDate(c *gin.Context) {
 		return
 	}
 
-	resp, err := dbClient.GetEventsByDate(eventdate.EventDate)
+	resp, err := s.Client.GetEventsByDate(eventdate.EventDate)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, "something is wrong with the server")
 		return
@@ -235,19 +168,7 @@ func GetEventsByDate(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-func GetEventsByDateRange(c *gin.Context) {
-
-	dbClient, err := lsdb.NewClient()
-
-	if err != nil {
-		panic(err.Error())
-	}
-
-	if err := dbClient.OpenConnection(); err != nil {
-		panic(err.Error())
-	}
-
-	defer dbClient.CloseConnection()
+func (s Server) GetEventsByDateRange(c *gin.Context) {
 
 	var eventdaterange EventDateRange
 
@@ -256,7 +177,7 @@ func GetEventsByDateRange(c *gin.Context) {
 		return
 	}
 
-	resp, err := dbClient.GetEventByDateRange(eventdaterange.StartDate, eventdaterange.EndDate)
+	resp, err := s.Client.GetEventByDateRange(eventdaterange.StartDate, eventdaterange.EndDate)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, "something is wrong with the server")
 		return
@@ -264,48 +185,26 @@ func GetEventsByDateRange(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-func GetParticipantsInfoByEventID(c *gin.Context) {
+func (s Server) GetParticipantsInfoByEventID(c *gin.Context) {
 
-	dbClient, err := lsdb.NewClient()
-
-	if err != nil {
-		panic(err.Error())
-	}
-
-	if err := dbClient.OpenConnection(); err != nil {
-		panic(err.Error())
-	}
-
-	defer dbClient.CloseConnection()
-
-	var eventid EventId
+	var eventid lsdb.EventParticipantInfo
 
 	if err := c.BindJSON(&eventid); err != nil {
 		c.JSON(http.StatusBadRequest, "Bad Format")
 		return
 	}
 
-	resp, err := dbClient.GetParticipantsInfoByEventID(eventid.Id)
+	fmt.Println(eventid.EventUID)
+	resp, err := s.Client.GetParticipantsInfoByEventID(eventid.EventUID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, "something is wrong with the server")
 		return
 	}
 	c.JSON(http.StatusOK, resp)
+
 }
 
-func GetEventWinners(c *gin.Context) {
-
-	dbClient, err := lsdb.NewClient()
-
-	if err != nil {
-		panic(err.Error())
-	}
-
-	if err := dbClient.OpenConnection(); err != nil {
-		panic(err.Error())
-	}
-
-	defer dbClient.CloseConnection()
+func (s Server) GetEventWinners(c *gin.Context) {
 
 	var eventId EventWinners
 
@@ -314,7 +213,7 @@ func GetEventWinners(c *gin.Context) {
 		return
 	}
 
-	resp, err := dbClient.GetEventWinners(eventId.EventId)
+	resp, err := s.Client.GetEventWinners(eventId.EventId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, "something is wrong with the server")
 		return
@@ -322,19 +221,7 @@ func GetEventWinners(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-func AddNewEvent(c *gin.Context) {
-
-	dbClient, err := lsdb.NewClient()
-
-	if err != nil {
-		panic(err.Error())
-	}
-
-	if err := dbClient.OpenConnection(); err != nil {
-		panic(err.Error())
-	}
-
-	defer dbClient.CloseConnection()
+func (s Server) AddNewEvent(c *gin.Context) {
 
 	var addevent lsdb.LotteryEventInfo
 
@@ -343,25 +230,14 @@ func AddNewEvent(c *gin.Context) {
 		return
 	}
 
-	if err := dbClient.AddNewEvent(addevent); err != nil {
+	if err := s.Client.AddNewEvent(addevent); err != nil {
 		c.JSON(http.StatusInternalServerError, "something is wrong with the server")
 		return
 	}
 	c.JSON(http.StatusOK, "Event added successfully")
 }
 
-func DeleteEvent(c *gin.Context) {
-	dbClient, err := lsdb.NewClient()
-
-	if err != nil {
-		panic(err.Error())
-	}
-
-	if err := dbClient.OpenConnection(); err != nil {
-		panic(err.Error())
-	}
-
-	defer dbClient.CloseConnection()
+func (s Server) DeleteEvent(c *gin.Context) {
 
 	var deleteevent lsdb.LotteryEventInfo
 
@@ -370,7 +246,7 @@ func DeleteEvent(c *gin.Context) {
 		return
 	}
 
-	if err := dbClient.DeleteEvent(deleteevent.EventUID); err != nil {
+	if err := s.Client.DeleteEvent(deleteevent.EventUID); err != nil {
 		c.JSON(http.StatusInternalServerError, "something is wrong with the server")
 		return
 	}
