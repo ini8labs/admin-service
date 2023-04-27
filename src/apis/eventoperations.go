@@ -2,12 +2,9 @@ package apis
 
 import (
 	"net/http"
-	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ini8labs/lsdb"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func (s Server) AddNewEvent(c *gin.Context) {
@@ -21,33 +18,27 @@ func (s Server) AddNewEvent(c *gin.Context) {
 		"National Weekly":  "NW",
 	}
 
-	event_date := c.Query("date")
-	name := c.Query("name")
-	eventtype := c.Query("eventtype")
-	winingnumber := c.Query("winningnumber")
-
-	intWinNumber, _ := strconv.Atoi(winingnumber)
-
-	date, error := time.Parse("2006-01-02", event_date)
-	if error != nil {
-		s.Logger.Error("Can't parse date format")
-		c.JSON(http.StatusBadRequest, "Date not in correct format")
+	var newEvent AddNewEventReq
+	if err := c.ShouldBind(&newEvent); err != nil {
+		c.JSON(http.StatusBadRequest, "bad Format")
 		return
 	}
 
-	if intWinNumber < 1 || intWinNumber > 90 {
+	date := convertTimeToPrimitive(newEvent.EventDate)
+
+	if newEvent.WinningNumber < 1 || newEvent.WinningNumber > 90 {
 		c.JSON(http.StatusBadRequest, "Win numbers should be greater than 1 and less than 90")
 		return
 	}
 
-	if _, ok := events[name]; !ok {
+	if _, ok := events[newEvent.Name]; !ok {
 		c.JSON(http.StatusBadRequest, "Invalid Event")
 		return
 	}
 
 	var result bool = false
 	for _, value := range events {
-		if value == eventtype {
+		if value == newEvent.EventType {
 			result = true
 		}
 	}
@@ -57,16 +48,16 @@ func (s Server) AddNewEvent(c *gin.Context) {
 		return
 	}
 
-	if events[name] != eventtype {
+	if events[newEvent.Name] != newEvent.EventType {
 		c.JSON(http.StatusBadRequest, "Event does not match event type")
 		return
 	}
 
 	eventinfo := lsdb.LotteryEventInfo{
-		Name:          name,
-		EventDate:     primitive.NewDateTimeFromTime(date),
-		WinningNumber: intWinNumber,
-		EventType:     eventtype,
+		Name:          newEvent.Name,
+		EventDate:     date,
+		WinningNumber: newEvent.WinningNumber,
+		EventType:     newEvent.EventType,
 	}
 
 	if err := s.Client.AddNewEvent(eventinfo); err != nil {
@@ -85,7 +76,7 @@ func (s Server) DeleteEvent(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, "Bad Format")
 	}
 
-	if err := s.Client.DeleteEvent(StringToPrimitive(eventid)); err != nil {
+	if err := s.Client.DeleteEvent(stringToPrimitive(eventid)); err != nil {
 		c.JSON(http.StatusInternalServerError, "something is wrong with the server")
 		s.Logger.Error(err.Error())
 		return

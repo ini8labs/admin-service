@@ -17,8 +17,8 @@ func NewServer(server Server) error {
 
 	r.GET("/api/v1/eventinfo", server.GetAllEvents)
 	r.GET("api/v1/eventinfo/Eventtype", server.GetEventsByType)
-	// r.GET("/api/v1/eventinfo/Date", server.GetEventsByDate)                  need to convert string to primitive.Date
-	// r.GET("/api/v1/eventinfo/Daterange", server.GetEventsByDateRange)        need to convert string to primitive.Date
+	r.GET("/api/v1/eventinfo/Date", server.GetEventsByDate)
+	r.GET("/api/v1/eventinfo/Daterange", server.GetEventsByDateRange)
 	//r.GET("/api/v1/eventinfo/Winners", server.GetEventWinners) // will not work
 
 	r.POST("/api/v1/event/Add", server.AddNewEvent)
