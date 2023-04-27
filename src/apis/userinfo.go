@@ -63,7 +63,7 @@ func (s Server) initializeUserInfobByEventId(resp []lsdb.EventParticipantInfo, s
 			resp2, err := s.Client.GetUserInfoByID(resp[i].UserID)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, "something is wrong with the server")
-				s.Logger.Error(err.Error(), ", -1")
+				s.Logger.Error(err.Error())
 			}
 			if userinfobyevent.UserID == primitiveToString(resp2.UID) {
 				userinfobyevent.UserName = resp2.Name
@@ -71,10 +71,10 @@ func (s Server) initializeUserInfobByEventId(resp []lsdb.EventParticipantInfo, s
 			}
 			//stringUserID := mongouserId.Hex()
 			//userinfobyevent.UserID = stringUserID
-			// resp3, err3 := s.Client.GetUserInfoByID(eventinfo.UserID)
+			// resp3, err := s.Client.GetUserInfoByID(eventinfo.UserID)
 			// if err3 != nil {
 			// 	c.JSON(http.StatusInternalServerError, "something is wrong with the server")
-			// 	logrus.Infoln(err3)
+			// 	s.Server.Error(err.Error())
 			// 	return
 			// }
 			arr = append(arr, userinfobyevent)

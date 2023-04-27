@@ -21,6 +21,7 @@ func (s Server) AddNewEvent(c *gin.Context) {
 	var newEvent AddNewEventReq
 	if err := c.ShouldBind(&newEvent); err != nil {
 		c.JSON(http.StatusBadRequest, "bad Format")
+		s.Logger.Error(err.Error())
 		return
 	}
 
@@ -72,7 +73,6 @@ func (s Server) DeleteEvent(c *gin.Context) {
 	eventid, exists := c.GetQuery("EventUID")
 
 	if !exists {
-		s.Logger.Error("Field Missing")
 		c.JSON(http.StatusBadRequest, "Bad Format")
 	}
 
