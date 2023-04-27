@@ -24,34 +24,6 @@ func initializeEventInfo(resp []lsdb.LotteryEventInfo) []EventsInfo {
 	return arr
 }
 
-func (s Server) GetAllEvents(c *gin.Context) {
-
-	resp, err := s.Client.GetAllEvents()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, "something is wrong with the server")
-		s.Logger.Error(err.Error())
-		return
-	}
-
-	result := initializeEventInfo(resp)
-	c.JSON(http.StatusOK, result)
-}
-
-func (s Server) GetEventsByType(c *gin.Context) {
-
-	eventtype := c.Query("eventtype")
-
-	resp, err := s.Client.GetEventsByType(eventtype)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, "something is wrong with the server")
-		s.Logger.Error(err.Error())
-		return
-	}
-	result := initializeEventInfo(resp)
-	c.JSON(http.StatusOK, result)
-
-}
-
 func (s Server) GetEventsByDate(c *gin.Context) {
 
 	var eventDate GetEventsByDate
@@ -105,3 +77,30 @@ func (s Server) GetEventsByDateRange(c *gin.Context) {
 // 	}
 // 	c.JSON(http.StatusOK, resp)
 // }
+
+func (s Server) EventsInfo(c *gin.Context) {
+	eventtype, exists1 := c.GetQuery("eventtype")
+
+	if exists1 {
+		resp, err := s.Client.GetEventsByType(eventtype)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, "something is wrong with the server")
+			s.Logger.Error(err.Error())
+			return
+		}
+		result := initializeEventInfo(resp)
+		c.JSON(http.StatusOK, result)
+	}
+
+	if !exists1 {
+		resp, err := s.Client.GetAllEvents()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, "something is wrong with the server")
+			s.Logger.Error(err.Error())
+			return
+		}
+
+		result := initializeEventInfo(resp)
+		c.JSON(http.StatusOK, result)
+	}
+}

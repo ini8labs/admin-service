@@ -9,14 +9,9 @@ func NewServer(server Server) error {
 	r := gin.Default()
 
 	// API end point
-	//r.GET("/api/v1/user/info", GetAllUserData)
-	r.GET("/api/v1/userinfo/Phone", server.GetUserInfoByPhone)
-	r.GET("/api/v1/userinfo/Gov_Id", server.GetUserInfoByGovID)
-	r.GET("/api/v1/userinfo/UID", server.GetUserInfoByID)
-	r.GET("/api/v1/userinfo/EventID", server.GetParticipantsInfoByEventID)
+	r.GET("/api/v1/userinfo", server.UserInfo)
 
-	r.GET("/api/v1/eventinfo", server.GetAllEvents)
-	r.GET("api/v1/eventinfo/Eventtype", server.GetEventsByType)
+	r.GET("/api/v1/eventinfo", server.EventsInfo)
 	r.GET("/api/v1/eventinfo/Date", server.GetEventsByDate)
 	r.GET("/api/v1/eventinfo/Daterange", server.GetEventsByDateRange)
 	//r.GET("/api/v1/eventinfo/Winners", server.GetEventWinners) // will not work
