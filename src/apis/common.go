@@ -32,3 +32,10 @@ func convertPrimitiveToTime(date primitive.DateTime) Date {
 		Year:  t.Year(),
 	}
 }
+
+// func convertStringToInt(str string)int{
+// 	a, err := strconv.Atoi(str)
+// 	if err != nil{
+
+// 	return a
+// }

@@ -1,0 +1,23 @@
+basePath: /api/v1
+host: localhost:3000
+info:
+  contact: {}
+  description: Lottery scheme project API documentation
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: Go + Gin Todo API
+  version: "2.0"
+paths:
+  /userinfo:
+    get:
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "404":
+          description: page not found
+          schema:
+            type: string
+swagger: "2.0"

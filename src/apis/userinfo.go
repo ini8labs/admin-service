@@ -10,132 +10,157 @@ import (
 
 func initializeUserInfo(resp *lsdb.UserInfo, str string) UserInfo {
 	var userinfo UserInfo
-	if resp.GovID == str {
 
+	if resp.GovID == str {
 		userinfo.Name = resp.Name
 		userinfo.UID = primitiveToString(resp.UID)
 		userinfo.Phone = resp.Phone
 		userinfo.GovID = resp.GovID
 		userinfo.EMail = resp.EMail
 	}
+
 	return userinfo
 }
 
 func initializeUserInfoByPhone(resp *lsdb.UserInfo, num int) UserInfo {
 	var userinfo UserInfo
-	if resp.Phone == int64(num) {
 
+	if resp.Phone == int64(num) {
 		userinfo.Name = resp.Name
 		userinfo.UID = primitiveToString(resp.UID)
 		userinfo.Phone = resp.Phone
 		userinfo.GovID = resp.GovID
 		userinfo.EMail = resp.EMail
 	}
+
 	return userinfo
 }
 func initializeUserInfoById(resp *lsdb.UserInfo, str string) UserInfo {
 	var userinfo UserInfo
 	id := stringToPrimitive(str)
-	if resp.UID == id {
 
-		userinfo.Name = resp.Name
-		userinfo.UID = primitiveToString(resp.UID)
-		userinfo.Phone = resp.Phone
-		userinfo.GovID = resp.GovID
-		userinfo.EMail = resp.EMail
+	if resp.UID == id {
+		userinfo = UserInfo{
+			Name:  resp.Name,
+			UID:   primitiveToString(resp.UID),
+			Phone: resp.Phone,
+			GovID: resp.GovID,
+			EMail: resp.EMail,
+		}
 	}
+
 	return userinfo
 }
 
-func (s Server) initializeUserInfobByEventId(resp []lsdb.EventParticipantInfo, str string, c *gin.Context) []UserInfoByEventId {
+// @BasePath /api/v1
+// @Description get User info
+// @Accept  application/json
+// @Produce  application/json
+
+// @Success 200 {string} string	"ok"
+// @Failure 404 {object} string "page not found"
+// @Router /userinfo [get]
+func (s Server) userInfo(c *gin.Context) {
+
+	phonenumber := c.Query("phone")
+	uid := c.Query("uid")
+	govid := c.Query("govid")
+
+	userInfo, err := s.getUserByQueryParams(phonenumber, uid, govid)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "Probelm with the server")
+		return
+	}
+
+	c.JSON(http.StatusOK, userInfo)
+
+}
+
+func (s Server) getUserInfoByPhone(phoneNumber string) (UserInfo, error) {
+	userPhoneNumber, _ := strconv.Atoi(phoneNumber)
+
+	resp, err := s.Client.GetUserInfoByPhone(int64(userPhoneNumber))
+	if err != nil {
+		return UserInfo{}, err
+	}
+
+	userInfo := initializeUserInfoByPhone(resp, userPhoneNumber)
+	return userInfo, nil
+
+}
+
+func (s Server) getUserInfoByGovID(govId string) (UserInfo, error) {
+	resp, err := s.Client.GetUserInfoByGovID(govId)
+	if err != nil {
+		return UserInfo{}, err
+	}
+	userInfo := initializeUserInfo(resp, govId)
+	return userInfo, nil
+}
+
+func (s Server) getUserInfoByUID(uid string) (UserInfo, error) {
+	resp, err := s.Client.GetUserInfoByID(stringToPrimitive(uid))
+	if err != nil {
+		return UserInfo{}, err
+	}
+
+	userInfo := initializeUserInfoById(resp, uid)
+	return userInfo, nil
+}
+
+func (s Server) initializeUserInfobByEventId(resp []lsdb.EventParticipantInfo, str string) ([]UserInfoByEventId, error) {
 	var arr []UserInfoByEventId
 
 	for i := 0; i < len(resp); i++ {
 		var userinfobyevent UserInfoByEventId
 
 		if resp[i].EventUID == stringToPrimitive(str) {
-			userinfobyevent.UserID = primitiveToString(resp[i].UserID)
-			userinfobyevent.EventUID = primitiveToString(resp[i].EventUID)
-			userinfobyevent.BetUID = primitiveToString(resp[i].BetUID)
-			userinfobyevent.Amount = resp[i].Amount
-			userinfobyevent.BetNumbers = resp[i].BetNumbers
-
+			userinfobyevent = UserInfoByEventId{
+				UserID:     primitiveToString(resp[i].UserID),
+				EventUID:   primitiveToString(resp[i].EventUID),
+				BetUID:     primitiveToString(resp[i].BetUID),
+				Amount:     resp[i].Amount,
+				BetNumbers: resp[i].BetNumbers,
+			}
 			resp2, err := s.Client.GetUserInfoByID(resp[i].UserID)
 			if err != nil {
-				c.JSON(http.StatusInternalServerError, "something is wrong with the server")
-				s.Logger.Error(err.Error())
+				return []UserInfoByEventId{}, err
 			}
 			if userinfobyevent.UserID == primitiveToString(resp2.UID) {
 				userinfobyevent.UserName = resp2.Name
 				userinfobyevent.PhoneNumber = resp2.Phone
 			}
-			//stringUserID := mongouserId.Hex()
-			//userinfobyevent.UserID = stringUserID
-			// resp3, err := s.Client.GetUserInfoByID(eventinfo.UserID)
-			// if err3 != nil {
-			// 	c.JSON(http.StatusInternalServerError, "something is wrong with the server")
-			// 	s.Server.Error(err.Error())
-			// 	return
-			// }
 			arr = append(arr, userinfobyevent)
 		}
 	}
-	return arr
+	return arr, nil
 }
 
-func (s Server) UserInfo(c *gin.Context) {
-	phonenumber, exists1 := c.GetQuery("phone")
-	uid, exists2 := c.GetQuery("uid")
-	govid, exists3 := c.GetQuery("govid")
-	eventid, exists4 := c.GetQuery("eventid")
+func (s Server) getUserByQueryParams(phonenumber, uid, govid string) (UserInfo, error) {
+	var userInfo UserInfo
+	var err error
 
-	if exists1 {
-		userphonenumber, _ := strconv.Atoi(phonenumber)
-
-		resp, err := s.Client.GetUserInfoByPhone(int64(userphonenumber))
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, "something is wrong with the server")
-			s.Logger.Error(err.Error())
-			return
-		}
-
-		userInfo := initializeUserInfoByPhone(resp, userphonenumber)
-
-		c.JSON(http.StatusOK, userInfo)
+	switch {
+	case phonenumber != "":
+		userInfo, err = s.getUserInfoByPhone(phonenumber)
+	case uid != "":
+		userInfo, err = s.getUserInfoByUID(uid)
+	case govid != "":
+		userInfo, err = s.getUserInfoByGovID(govid)
 	}
 
-	if exists2 {
-		resp, err := s.Client.GetUserInfoByID(stringToPrimitive(uid))
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, "something is wrong with the server")
-			s.Logger.Error(err.Error())
-			return
-		}
+	return userInfo, err
+}
 
-		userInfo := initializeUserInfoById(resp, uid)
-		c.JSON(http.StatusOK, userInfo)
+func (s Server) userInfoByEventId(c *gin.Context) {
+	eventId := c.Query("eventId")
+	resp, err := s.Client.GetParticipantsInfoByEventID(stringToPrimitive(eventId))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "something is wrong with the server")
+		s.Logger.Error(err.Error())
+		return
 	}
 
-	if exists3 {
-		resp, err := s.Client.GetUserInfoByGovID(govid)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, "something is wrong with the server")
-			s.Logger.Error(err.Error())
-			return
-		}
-		userInfo := initializeUserInfo(resp, govid)
-		c.JSON(http.StatusOK, userInfo)
-	}
-
-	if exists4 {
-		resp, err := s.Client.GetParticipantsInfoByEventID(stringToPrimitive(eventid))
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, "something is wrong with the server")
-			s.Logger.Error(err.Error())
-			return
-		}
-
-		result := s.initializeUserInfobByEventId(resp, eventid, c)
-		c.JSON(http.StatusOK, result)
-	}
+	result, _ := s.initializeUserInfobByEventId(resp, eventId)
+	c.JSON(http.StatusOK, result)
 }
