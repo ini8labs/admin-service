@@ -25,7 +25,7 @@ type UserInfoByEventId struct {
 }
 
 type EventsInfo struct {
-	EventUID      string `json:"_id,omitempty"`
+	EventUID      string `json:"event_id,omitempty"`
 	EventDate     Date   `json:"event_date,omitempty"`
 	EventName     string `json:"name,omitempty"`
 	EventType     string `json:"event_type,omitempty"`
@@ -33,7 +33,7 @@ type EventsInfo struct {
 }
 
 type UserInfo struct {
-	UID   string `json:"_id,omitempty"`
+	UID   string `json:"user_id,omitempty"`
 	Name  string `json:"name,omitempty"`
 	Phone int64  `json:"phone,omitempty"`
 	GovID string `json:"gov_id,omitempty"`
