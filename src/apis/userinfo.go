@@ -52,14 +52,6 @@ func initializeUserInfoById(resp *lsdb.UserInfo, str string) UserInfo {
 	return userinfo
 }
 
-// @BasePath /api/v1
-// @Description get User info
-// @Accept  application/json
-// @Produce  application/json
-
-// @Success 200 {string} string	"ok"
-// @Failure 404 {object} string "page not found"
-// @Router /userinfo [get]
 func (s Server) userInfo(c *gin.Context) {
 
 	phonenumber := c.Query("phone")
@@ -122,14 +114,17 @@ func (s Server) initializeUserInfobByEventId(resp []lsdb.EventParticipantInfo, s
 				Amount:     resp[i].Amount,
 				BetNumbers: resp[i].BetNumbers,
 			}
+
 			resp2, err := s.Client.GetUserInfoByID(resp[i].UserID)
 			if err != nil {
 				return []UserInfoByEventId{}, err
 			}
+
 			if userinfobyevent.UserID == primitiveToString(resp2.UID) {
 				userinfobyevent.UserName = resp2.Name
 				userinfobyevent.PhoneNumber = resp2.Phone
 			}
+
 			arr = append(arr, userinfobyevent)
 		}
 	}
@@ -153,6 +148,7 @@ func (s Server) getUserByQueryParams(phonenumber, uid, govid string) (UserInfo, 
 }
 
 func (s Server) userInfoByEventId(c *gin.Context) {
+
 	eventId := c.Query("eventId")
 	resp, err := s.Client.GetParticipantsInfoByEventID(stringToPrimitive(eventId))
 	if err != nil {

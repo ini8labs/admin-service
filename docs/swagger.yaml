@@ -1,23 +1,21 @@
-basePath: /api/v1
-host: localhost:3000
 info:
   contact: {}
-  description: Lottery scheme project API documentation
-  license:
-    name: MIT
-    url: https://opensource.org/licenses/MIT
-  title: Go + Gin Todo API
-  version: "2.0"
 paths:
-  /userinfo:
-    get:
+  /event/Delete/{event_id}:
+    delete:
+      description: Delete event by event ID
+      parameters:
+      - description: EventUID
+        in: path
+        name: EventUID
+        required: true
+        type: string
       responses:
-        "200":
-          description: ok
-          schema:
-            type: string
+        "204":
+          description: No content
         "404":
-          description: page not found
+          description: User not found
           schema:
             type: string
+      summary: Delete a event
 swagger: "2.0"
