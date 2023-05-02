@@ -14,7 +14,7 @@ func NewServer(server Server) error {
 
 	r.GET("/api/v1/event", server.eventInfo)
 	//r.GET("/api/v1/eventinfo/Winners", server.GetEventWinners)   will not work
-
+	r.POST("api/v1/event/AddWinner", server.addWinner)
 	r.POST("/api/v1/event/Add", server.addNewEvent)
 	r.DELETE("/api/v1/event/Delete", server.deleteEvent)
 
