@@ -29,7 +29,7 @@ type EventsInfo struct {
 	EventDate     Date   `json:"event_date,omitempty"`
 	EventName     string `json:"name,omitempty"`
 	EventType     string `json:"event_type,omitempty"`
-	WinningNumber int    `json:"winning_number,omitempty"`
+	WinningNumber []int  `json:"winning_number,omitempty"`
 }
 
 type UserInfo struct {
@@ -50,7 +50,7 @@ type AddNewEventReq struct {
 	EventDate     Date   `json:"event_date"`
 	Name          string `json:"name,omitempty"`
 	EventType     string `json:"event_type,omitempty"`
-	WinningNumber int    `json:"win_number,omitempty"`
+	WinningNumber []int  `json:"win_number,omitempty"`
 }
 
 type GetEventsByDate struct {
@@ -60,7 +60,7 @@ type GetEventsByDate struct {
 }
 
 type AddWinner struct {
-	UID       string `json:"user_id"`
+	UserID    string `json:"user_id"`
 	EventUID  string `json:"event_id"`
 	AmountWon int    `json:"amountWon"`
 	Name      string `json:"user_name"`

@@ -5,318 +5,308 @@ package docs
 import "github.com/swaggo/swag"
 
 const docTemplate = `{
-    "schemes": [http,https],
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "info": {
-        "description": "{{escape .Description}}",
-        "title": "{{.Title}}",
-        "contact": {},
-        "version": "{{.Version}}"
-    },
-    "swagger": "2.0",
-    "info": {
-        "description": "{{Admin service API's}}",
-        "title": "{{Lottery Scheme}}",
-        "contact": {},
-        "version": "{{.Version}}"
-    },
-    "paths": {
-    "/user":{
-        "get":{
-            "summary": "Get user info",
-            "tags": ["User Info"],
-            "consumes": [
-                "application/json"
-            ],
-            "produces": [
-                "application/json"
-            ],
-            "parameters":[
-                {
-                    "description": "User phone number that needs to be fetched. For valid response enter 7506639417",
-                    "name": "Phone number",
-                    "in": "body",
-                    "schema":{
-                        "type":"object",
-                        "properties": {
-                            "phone":{
-                                "type":"integer",
-                                "example":7506639417
-                            }
-                        }
-                    }
-                },
-                {
-                    "description": "User govt id that needs to be fetched. For valid response enter ABCDEFG",
-                    "name": "Govt Id",
-                    "in": "body",
-                    "schema":{
-                        "type":"object",
-                        "properties": {
-                            "govid":{
-                                "type":"string",
-                                "example":"ABCDEFG"
-                            }
-                        }
-                    }
-                },
-                {
-                    "description": "User ID that needs to be fetched. For valid response enter 6443a1e99c150ed9e52c5bdd",
-                    "name": "User Id",
-                    "in": "body",
-                    "schema":{
-                        "type":"object",
-                        "properties": {
-                            "govid":{
-                                "type":"string",
-                                "example":"6443a1e99c150ed9e52c5bdd"
-                            }
-                        }
-                    }
-                }
-            ],
-            "responses": {
-                "200": {
-                    "description": "OK",
-                    "schema": {
-                            "type":"object",
-                            "example":{
-                                "user_id":"6443a1e99c150ed9e52c5bdd",
-                                "name":"Anand",
-                                "phone":7506639417,
-                                "gov_id":"ABCDEFG",
-                                "e_mail":"anand@ini8labs.tech"
-                            }
-                        }
-                    },
-                "400":{
-                    "description": "Invalid User Details"
-                },
-                "404":{
-                    "description": "User not found"
-                },
-                "500":{
-                    "description": "The server can not find the requested page."
-            }
-        }
-    }
-    },
-    "/event":{
-        "get":{
-            "tags": ["Events"],
-            "description": "Get Event Info",
-            "consumes": [
-                "application/json"
-            ],
-            "produces": [
-                "application/json"
-            ],
-            "parameters":[
-                {
-                    "description": "Get Event info by event type",
-                    "name": "Enter event type",
-                    "in": "body",
-                    "schema":{
-                        "type": "object",
-                        "properties": {
-                            "event type":{
-                                "type":"string",
-                                "example":"MS"
-                            }
-                        }
-                    }
-                },
-                {
-                    "description": "Get event info by date",
-                    "name": "Enter event date",
-                    "in": "body",
-                    "schema":{
-                        "type":"object",
-                        "properties": {
-                            "date":{
-                                "type":"string",
-                                "example":"2023-04-10"
-                            }
-                        }
-                    }
-                },
-                {
-                    "description": "Get info of Events by Date Range",
-                    "name": "Enter event date range",
-                    "in": "body",
-                    "schema":{
-                        "type":"object",
-                        "properties": {
-                                "start date":{
-                                    "type":"string",
-                                    "example":"2023-04-19"
-                                },
-                                "end date":{
-                                    "type":"string",
-                                    "example":"2023-05-10"
-                                }
-                            }
-                        }
-                }
-            ],
-            "responses": {
-                "200": {
-                    "description": "OK",
-                    "schema": {
-                            "type":"array",
-                            "example":[
-                                {
-                                    "event_id": "6443ce3e17a0b8c457c7bf26",
-                                    "event_date": {
-                                        "day": 23,
-                                        "month": 4,
-                                        "year": 2023
-                                    },
-                                    "name": "Monday Special",
-                                    "event_type": "MS",
-                                    "winning_number": 1
-                                },
-                                {
-                                    "event_id": "644a1983c8fefde5d0698649",
-                                    "event_date": {
-                                        "day": 10,
-                                        "month": 3,
-                                        "year": 2006
-                                    },
-                                    "name": "Monday Special",
-                                    "event_type": "MS",
-                                    "winning_number": 45
-                                },
-                                {
-                                    "event_id": "644a4f8e70416dc2b4c8b92d",
-                                    "event_date": {
-                                        "day": 10,
-                                        "month": 3,
-                                        "year": 2006
-                                    },
-                                    "name": "Monday Special",
-                                    "event_type": "MS",
-                                    "winning_number": 45
-                                }
-                            ]
-                    }
-                },
-                "400":{
-                    "description": "The server did not understand the request.",
-                    "schema": {
-                        "type":"string",
-                        "example":"Bad Format"
-                    }
-                },
-                "404":{
-                    "description": "The server cannot find the requested page.",
-                    "schema": {
-                        "type":"string",
-                        "example":"Page Not Found"
-                    }
-                },
-                "500":{
-                    "description": "The server can not find the requested page.",
-                    "schema": {
-                        "type":"string",
-                        "example":"Internal Server Error"
-                    }
-                }
-            }
-        }
-    },
-    "/event/Delete": {
-        "delete": {
-            "description": "Delete event by event ID",
-            "tags": ["Events"],
-            "summary": "Delete a event",
-            "consumes": ["application/json"],
-            "parameters": [
-                {
-                    "description": "EventUID",
-                    "name": "EventUID",
-                    "in": "body",
-                    "required": true,
-                    "schema": {
-                        "type":"object",
-                        "properties": {
-                            "EventUID":{
-                                "type":"string",
-                                "example":"436645635"
-                            }
-                        }
-                    }
-                }
-            ],
-            "responses": {
-                "204": {
-                    "description": "No content"
-                },
-                "400":{
-                    "description": "Bad request"
-                },
-                "404": {
-                    "description": "Event not found"
-                    },
-                "500":{
-                    "description": "Internal Server Error"
-                }    
-                }
-            }
-        },
-    "/event/Add":{
-        "post":{
-            "description": "",
-            "tags":["Events"],
-            "summary": "Add new event",
-            "consumes": ["application/json"],
-            "produces":["application/json"],
-            "parameters": [
-                {
-                    "name": "Enter event details",
-                    "in":"body",
-                    "required": true,
-                    "schema": {
-                        "type":"object",
-                        "properties": {
-                            "event_date":{
-                                "type":"string",
-                                "example":"2023-04-10"
-                            },
-                            "name":{
-                                "type":"string",
-                                "example":"Monday Special"
-                            },
-                            "event_type":{
-                                "type":"string",
-                                "example":"MS"
-                            },
-                            "win_number":{
-                                "type":"integer",
-                                "example":"34"
-                            }
-                        }
-                    }
-                }
-            ],
-            "responses": {
-                "201":{
-                    "description": "Event Created"
-                },
-                "400":{
-                    "description": "Bad request"
-                },
-                "404":{
-                    "description": "Page Not Found"
-                },
-                "500":{
-                    "description": "Internal Server Error"
-                    }
-                }
-            }
-        }
-    }
+		"schemes": ["http","https"],
+		"swagger": "2.0",
+		"info": {
+			"description": "{{escape .Description}}",
+			"title": "{{.Title}}",
+			"contact": {},
+			"version": "{{.Version}}"
+		},
+		"paths": {
+			"/event/Add":{
+				"post":{
+					"tags":["Events"],
+					"parameters":[
+						{
+							"summary":"Add a new event",
+							"name":"info",
+							"in":"body",
+							"schema":{
+								"type":"object",
+								"properties":{
+									"event_date":{
+										"type":"object",
+									"properties": {
+										"day":{
+											"type":"integer",
+											"example": 8
+										},
+										"month":{
+											"type":"integer",
+											"example": 5
+										},
+										"year":{
+											"type":"integer",
+											"example": 2023
+										}
+									}
+									},
+									"name":{
+										"type":"string",
+										"example":"Monday Special"
+									},
+									"event_type":{
+										"type":"string",
+										"example":"MS"
+									},
+									"win_number":{
+										"type":"array",
+										"example":[34,65,78,3,4]
+									}
+								}
+							}
+						}
+					],
+					"responses":{
+						"201": {
+							"schema": {
+								"type": "string",
+						"example": "user info added successfully"
+							}
+						}
+					}
+				}
+			},
+			"/users":{
+				"get":{
+					"tags":["User"],
+					"description":"Get user info by event Id",
+					"consumes": [
+					  "application/json"
+					],
+					"produces": [
+					  "application/json"
+					],
+					"parameters": [
+						{
+							"description": "Get user info by event id",
+							"name": "eventId",
+							"in": "query",
+							"type": "string",
+							"required": true
+						}
+					],
+					"responses":{
+						"200": {
+						"description": "OK",
+						"schema": {
+							"type":"array",
+							"example":[
+								{
+									"event_id": "6443ce519e3f8c9e2af517fb",
+									"event_date": {},
+									"username": "Randolph2",
+									"betid": "6447d115dd1461c143840312",
+									"user_id": "644790a68e3540cbb44180b0",
+									"bet_numbers": [
+										1,
+										2,
+										3,
+										4
+									],
+									"amount": 12,
+									"phone": 1234543435
+								}
+							]
+						}
+					  },
+					  "400":{
+						"description": "The server did not understand the request.",
+						"schema": {
+						  "type":"string",
+						  "example":"Bad Format"
+						}
+					  },
+					  "404":{
+						"description": "The server cannot find the requested page.",
+						"schema": {
+						  "type":"string",
+						  "example":"Page Not Found"
+						}
+					  },
+					  "500":{
+						"description": "The server can not find the requested page.",
+						"schema": {
+						  "type":"string",
+						  "example":"Internal Server Error"
+							}
+						}
+					}
+				}
+			},
+			"/event":{
+				"get":{
+					"tags": ["Events"],
+					"description": "Get Event Info",
+					"consumes": [
+					  "application/json"
+					],
+					"produces": [
+					  "application/json"
+					],
+					"parameters":[
+					  {
+						"description": "Get user info by event type",
+						"name": "eventType",
+						"in": "query",
+						"type": "string",
+						"required": false
+						},
+						{
+						"description": "Get event info by date",
+						"name": "date",
+						"in": "query",
+						"type": "string",
+						"required": false
+						},
+					  {
+						"description": "Get user info by date range",
+						"name": ["startDate","endDate"],
+						"in": "query",
+									"type": "string",
+						"required": false
+								}
+					],
+					"responses": {
+					  "200": {
+						"description": "OK",
+						"schema": {
+							"type":"object",
+							"example":
+							  {
+								"user_id": "6443a1e99c150ed9e52c5bdd",
+								"name": "Anand",
+								"phone": 7506639417,
+								"gov_id": "ABCDEFG",
+								"e_mail": "anand@ini8labs.tech"
+							  }
+							
+						}
+					  },
+					  "400":{
+						"description": "The server did not understand the request.",
+						"schema": {
+						  "type":"string",
+						  "example":"Bad Format"
+						}
+					  },
+					  "404":{
+						"description": "The server cannot find the requested page.",
+						"schema": {
+						  "type":"string",
+						  "example":"Page Not Found"
+						}
+					  },
+					  "500":{
+						"description": "The server can not find the requested page.",
+						"schema": {
+						  "type":"string",
+						  "example":"Internal Server Error"
+								}
+							  }	
+						}
+					}
+			},
+			"/event/{EventUID}":{
+				"delete": {
+					"tags": ["Events"],
+					"parameters": [
+						{
+							"description": "enter a valid event id",
+							"name": "EventUID",
+							"in": "path",
+							"required": true,
+							"type": "string"
+						}
+					],
+					"responses": {
+						"200":{
+							"description": "Event information deleted successfully",
+							"schema": {
+								"type": "string",
+								"example": "Event information deleted successfully"
+							}
+						}
+					}
+				}
+			},
+			"/user":{
+			  "get":{
+				"tags": ["User Info"],
+				"description": "Get User Info",
+				"consumes": [
+				  "application/json"
+				],
+				"produces": [
+				  "application/json"
+				],
+				"parameters":[
+				  {
+					"description": "Get user info by phone number",
+					"name": "phone",
+					"in": "query",
+					"type": "string",
+					"required": false
+							},
+							{
+					"description": "Get user info by uid",
+					"name": "uid",
+					"in": "query",
+					"type": "string",
+					"required": false
+							},
+				  {
+					"description": "Get user info by govt id",
+					"name": "govid",
+					"in": "query",
+					"type": "string",
+					"required": false
+							}
+				],
+				"responses": {
+				  "200": {
+					"description": "OK",
+					"schema": {
+						"type":"object",
+						"example":
+						  {
+							"user_id": "6443a1e99c150ed9e52c5bdd",
+							"name": "Anand",
+							"phone": 7506639417,
+							"gov_id": "ABCDEFG",
+							"e_mail": "anand@ini8labs.tech"
+						  }
+						
+					}
+				  },
+				  "400":{
+					"description": "The server did not understand the request.",
+					"schema": {
+					  "type":"string",
+					  "example":"Bad Format"
+					}
+				  },
+				  "404":{
+					"description": "The server cannot find the requested page.",
+					"schema": {
+					  "type":"string",
+					  "example":"Page Not Found"
+					}
+				  },
+				  "500":{
+					"description": "The server can not find the requested page.",
+					"schema": {
+					  "type":"string",
+					  "example":"Internal Server Error"
+						}
+					}
+				}
+			}
+		}
+	}
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
@@ -325,8 +315,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:3000",
 	BasePath:         "/api/v1",
 	Schemes:          []string{"http"},
-	Title:            "Admin Service API's",
-	Description:      "Lottery Project",
+	Title:            "My API",
+	Description:      "This is Lottery Project API",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 }

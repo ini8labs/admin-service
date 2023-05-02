@@ -1,6 +1,7 @@
 package apis
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -25,14 +26,17 @@ func (s Server) addNewEvent(c *gin.Context) {
 	if err := c.ShouldBind(&newEvent); err != nil {
 		c.JSON(http.StatusBadRequest, "bad Format")
 		s.Logger.Error(err.Error())
+		fmt.Println(newEvent)
 		return
 	}
 
 	date := convertTimeToPrimitive(newEvent.EventDate)
 
-	if newEvent.WinningNumber < 1 || newEvent.WinningNumber > 90 {
-		c.JSON(http.StatusBadRequest, "Win numbers should be greater than 0 and less than 90")
-		return
+	for i := 0; i < len(newEvent.WinningNumber); i++ {
+		if newEvent.WinningNumber[i] < 1 || newEvent.WinningNumber[i] > 90 {
+			c.JSON(http.StatusBadRequest, "Win numbers should be greater than 0 and less than 90")
+			return
+		}
 	}
 
 	if _, ok := events[newEvent.Name]; !ok {
@@ -70,14 +74,37 @@ func (s Server) addNewEvent(c *gin.Context) {
 		s.Logger.Error(err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, "Event added successfully")
+	c.JSON(http.StatusCreated, "Event added successfully")
+}
+
+func validateEventId(str string, resp []EventsInfo) bool {
+	eventIdExist := true
+
+	for i := 0; i < len(resp); i++ {
+		if resp[i].EventUID == str {
+			eventIdExist = true
+			break
+		}
+		if resp[i].EventUID != str {
+			eventIdExist = false
+		}
+	}
+	return eventIdExist
 }
 
 func (s Server) deleteEvent(c *gin.Context) {
-	eventid, exists := c.GetQuery("EventUID")
+	eventid := c.Param("EventUID")
 
-	if !exists {
-		c.JSON(http.StatusBadRequest, "Bad Format")
+	resp, err := s.getEventInfo()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+
+	validation := validateEventId(eventid, resp)
+	if !validation {
+		c.JSON(http.StatusBadRequest, "EventId does not exist")
+		return
 	}
 
 	if err := s.Client.DeleteEvent(stringToPrimitive(eventid)); err != nil {
@@ -85,6 +112,7 @@ func (s Server) deleteEvent(c *gin.Context) {
 		s.Logger.Error(err.Error())
 		return
 	}
+
 	c.JSON(http.StatusOK, "Event deleted successfully")
 }
 
@@ -107,14 +135,14 @@ func initializeEventInfo(resp []lsdb.LotteryEventInfo) []EventsInfo {
 
 func (s Server) eventInfo(c *gin.Context) {
 
-	eventType := c.Query("event type")
+	eventType := c.Query("eventType")
 	date := c.Query("date")
-	startDate := c.Query("start date")
-	endDate := c.Query("end date")
+	startDate := c.Query("startDate")
+	endDate := c.Query("endDate")
 
 	eventInfo, err := s.getEventByQueryParams(eventType, date, startDate, endDate)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, "Probelm with the server")
+		c.JSON(http.StatusInternalServerError, "Problem with the server")
 		return
 	}
 
