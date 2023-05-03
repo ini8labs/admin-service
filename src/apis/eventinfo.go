@@ -180,7 +180,7 @@ func (s Server) eventInfo(c *gin.Context) {
 
 	eventInfo, err := s.getEventByQueryParams(eventType, date, startDate, endDate)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, "Invalid Input")
+		c.JSON(http.StatusBadRequest, err)
 		s.Logger.Error(err.Error())
 		return
 	}
@@ -307,7 +307,8 @@ func convertStringToDate(date string) (Date, error) {
 	var d Date
 
 	dateArr := strings.Split(date, "-")
-	if len(date) != 3 {
+
+	if len(dateArr) != 3 {
 		return d, fmt.Errorf("invalid date")
 	}
 
