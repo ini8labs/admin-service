@@ -70,6 +70,23 @@ func validateAddEvent(newEvent AddNewEventReq) (lsdb.LotteryEventInfo, string) {
 	return eventinfo, str
 }
 
+func initializeEventInfo(resp []lsdb.LotteryEventInfo) []EventsInfo {
+	var arr []EventsInfo
+
+	for i := 0; i < len(resp); i++ {
+		eventinfo := EventsInfo{
+			EventUID:      primitiveToString(resp[i].EventUID),
+			EventDate:     convertPrimitiveToTime(resp[i].EventDate),
+			EventName:     resp[i].Name,
+			EventType:     resp[i].EventType,
+			WinningNumber: resp[i].WinningNumber,
+		}
+
+		arr = append(arr, eventinfo)
+	}
+	return arr
+}
+
 func (s Server) addNewEvent(c *gin.Context) {
 
 	var addEvent AddNewEventReq
@@ -94,8 +111,13 @@ func (s Server) addNewEvent(c *gin.Context) {
 	c.JSON(http.StatusCreated, "Event added successfully")
 }
 
-func validateEventId(str string, resp []EventsInfo) bool {
+func (s Server) validateEventId(str string) (bool, error) {
 	eventIdExist := true
+
+	resp, err := s.getEventInfo()
+	if err != nil {
+		return false, err
+	}
 
 	for i := 0; i < len(resp); i++ {
 		if resp[i].EventUID == str {
@@ -106,19 +128,19 @@ func validateEventId(str string, resp []EventsInfo) bool {
 			eventIdExist = false
 		}
 	}
-	return eventIdExist
+	return eventIdExist, nil
 }
 
 func (s Server) deleteEvent(c *gin.Context) {
 	eventid := c.Param("EventUID")
 
-	resp, err := s.getEventInfo()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, "Internal Server Error")
-		return
-	}
+	// resp, err := s.getEventInfo()
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, "Internal Server Error")
+	// 	return
+	// }
 
-	validation := validateEventId(eventid, resp)
+	validation, _ := s.validateEventId(eventid)
 	if !validation {
 		c.JSON(http.StatusBadRequest, "EventId does not exist")
 		return
@@ -131,23 +153,6 @@ func (s Server) deleteEvent(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, "Event deleted successfully")
-}
-
-func initializeEventInfo(resp []lsdb.LotteryEventInfo) []EventsInfo {
-	var arr []EventsInfo
-
-	for i := 0; i < len(resp); i++ {
-		eventinfo := EventsInfo{
-			EventUID:      primitiveToString(resp[i].EventUID),
-			EventDate:     convertPrimitiveToTime(resp[i].EventDate),
-			EventName:     resp[i].Name,
-			EventType:     resp[i].EventType,
-			WinningNumber: resp[i].WinningNumber,
-		}
-
-		arr = append(arr, eventinfo)
-	}
-	return arr
 }
 
 func (s Server) eventInfo(c *gin.Context) {
