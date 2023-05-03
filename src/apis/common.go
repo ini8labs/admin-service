@@ -39,3 +39,17 @@ func convertPrimitiveToTime(date primitive.DateTime) Date {
 
 // 	return a
 // }
+
+func daysInMonth(month, year int) int {
+	switch time.Month(month) {
+	case time.April, time.June, time.September, time.November:
+		return 30
+	case time.February:
+		if year%4 == 0 && (year%100 != 0 || year%400 == 0) { // leap year
+			return 29
+		}
+		return 28
+	default:
+		return 31
+	}
+}

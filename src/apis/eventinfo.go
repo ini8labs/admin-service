@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ini8labs/lsdb"
@@ -26,6 +27,11 @@ func validateAddEvent(newEvent AddNewEventReq) (lsdb.LotteryEventInfo, string) {
 
 	if len(newEvent.WinningNumber) > 5 || len(newEvent.WinningNumber) < 5 {
 		str = "There should be 5 winning numbers"
+		return lsdb.LotteryEventInfo{}, str
+	}
+
+	if daysInMonth(int(time.Now().Month()), time.Now().Year()) < newEvent.EventDate.Day || newEvent.EventDate.Day < 1 || newEvent.EventDate.Month < 1 || newEvent.EventDate.Year < time.Now().Year() || (newEvent.EventDate.Year <= time.Now().Year() && newEvent.EventDate.Month < int(time.Now().Month())) {
+		str = "Invalid Date"
 		return lsdb.LotteryEventInfo{}, str
 	}
 
