@@ -24,17 +24,25 @@ func validateAddEvent(newEvent AddNewEventReq) (lsdb.LotteryEventInfo, string) {
 	date := convertTimeToPrimitive(newEvent.EventDate)
 	var str string = ""
 
+	if len(newEvent.WinningNumber) > 5 || len(newEvent.WinningNumber) < 5 {
+		str = "There should be 5 winning numbers"
+		return lsdb.LotteryEventInfo{}, str
+	}
+
 	for i := 0; i < len(newEvent.WinningNumber); i++ {
 		if newEvent.WinningNumber[i] < 1 || newEvent.WinningNumber[i] > 90 {
 			str = "Wining numbers should be greater than 0 and less than 90"
 			return lsdb.LotteryEventInfo{}, str
 		}
-
+		count := 0
 		for j := 0; j < len(newEvent.WinningNumber); j++ {
 			if newEvent.WinningNumber[i] == newEvent.WinningNumber[j] {
-				str = "Wining numbers should be different"
-				return lsdb.LotteryEventInfo{}, str
+				count++
 			}
+		}
+		if count > 1 {
+			str = "Wining numbers should be different"
+			return lsdb.LotteryEventInfo{}, str
 		}
 	}
 
