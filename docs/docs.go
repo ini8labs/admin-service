@@ -162,13 +162,16 @@ const docTemplate = `{
 						"type": "string",
 						"required": false
 						},
-					  {
-						"description": "Get event info by date range",
-						"name": ["startDate","endDate"],
-						"in": "query",
-						"type": "string",
-						"required": false
-								}
+						{
+							"description": "Get user info by date range",
+							"name": "start_date|end_date",
+							"in": "query",
+							"type": "string",
+							"style": "pipeDelimited",
+							"explode": false,
+							"allowReserved": true,
+							"required": false
+									}
 					],
 					"responses": {
 					  "200": {
