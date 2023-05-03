@@ -289,13 +289,6 @@ const docTemplate = `{
 					  "example":"Bad Format"
 					}
 				  },
-				  "404":{
-					"description": "The server cannot find the requested page.",
-					"schema": {
-					  "type":"string",
-					  "example":"Page Not Found"
-					}
-				  },
 				  "500":{
 					"description": "The server can not find the requested page.",
 					"schema": {

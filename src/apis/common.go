@@ -33,13 +33,6 @@ func convertPrimitiveToTime(date primitive.DateTime) Date {
 	}
 }
 
-// func convertStringToInt(str string)int{
-// 	a, err := strconv.Atoi(str)
-// 	if err != nil{
-
-// 	return a
-// }
-
 func daysInMonth(month, year int) int {
 	switch time.Month(month) {
 	case time.April, time.June, time.September, time.November:

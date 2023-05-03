@@ -1,6 +1,7 @@
 package apis
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -60,7 +61,7 @@ func (s Server) userInfo(c *gin.Context) {
 
 	userInfo, err := s.getUserByQueryParams(phonenumber, uid, govid)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, "Probelm with the server")
+		c.JSON(http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -75,6 +76,11 @@ func (s Server) getUserInfoByPhone(phoneNumber string) (UserInfo, error) {
 	if err != nil {
 		return UserInfo{}, err
 	}
+	if resp == nil {
+		err = errors.New("invalid phone number")
+		s.Logger.Error(err.Error())
+		return UserInfo{}, err
+	}
 
 	userInfo := initializeUserInfoByPhone(resp, userPhoneNumber)
 	return userInfo, nil
@@ -86,6 +92,12 @@ func (s Server) getUserInfoByGovID(govId string) (UserInfo, error) {
 	if err != nil {
 		return UserInfo{}, err
 	}
+
+	if resp == nil {
+		err = errors.New("invalid govt id")
+		s.Logger.Error(err.Error())
+		return UserInfo{}, err
+	}
 	userInfo := initializeUserInfo(resp, govId)
 	return userInfo, nil
 }
@@ -93,6 +105,12 @@ func (s Server) getUserInfoByGovID(govId string) (UserInfo, error) {
 func (s Server) getUserInfoByUID(uid string) (UserInfo, error) {
 	resp, err := s.Client.GetUserInfoByID(stringToPrimitive(uid))
 	if err != nil {
+		return UserInfo{}, err
+	}
+
+	if resp == nil {
+		err = errors.New("invalid user id")
+		s.Logger.Error(err.Error())
 		return UserInfo{}, err
 	}
 
@@ -153,6 +171,7 @@ func (s Server) userInfoByEventId(c *gin.Context) {
 	validation, _ := s.validateEventId(eventId)
 	if !validation {
 		c.JSON(http.StatusBadRequest, "EventId does not exist")
+		s.Logger.Error("invalid event id")
 		return
 	}
 

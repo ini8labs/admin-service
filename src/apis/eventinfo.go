@@ -1,6 +1,7 @@
 package apis
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -20,25 +21,29 @@ var events map[string]string = map[string]string{
 	"National Weekly":  "NW",
 }
 
-func validateAddEvent(newEvent AddNewEventReq) (lsdb.LotteryEventInfo, string) {
+func validateAddEvent(newEvent AddNewEventReq) (lsdb.LotteryEventInfo, error) {
 
 	date := convertTimeToPrimitive(newEvent.EventDate)
-	var str string = ""
-
+	var err error
 	if len(newEvent.WinningNumber) > 5 || len(newEvent.WinningNumber) < 5 {
-		str = "There should be 5 winning numbers"
-		return lsdb.LotteryEventInfo{}, str
+		err = errors.New("there should be 5 winning numbers")
+		return lsdb.LotteryEventInfo{}, err
 	}
 
-	if daysInMonth(int(time.Now().Month()), time.Now().Year()) < newEvent.EventDate.Day || newEvent.EventDate.Day < 1 || newEvent.EventDate.Month < 1 || newEvent.EventDate.Year < time.Now().Year() || (newEvent.EventDate.Year <= time.Now().Year() && newEvent.EventDate.Month < int(time.Now().Month())) {
-		str = "Invalid Date"
-		return lsdb.LotteryEventInfo{}, str
+	if daysInMonth(int(time.Now().Month()), time.Now().Year()) < newEvent.EventDate.Day || newEvent.EventDate.Day < 1 || newEvent.EventDate.Month > 12 || newEvent.EventDate.Month < 1 {
+		err = errors.New("invalid date")
+		return lsdb.LotteryEventInfo{}, err
+	}
+
+	if ((daysInMonth(int(time.Now().Month()), time.Now().Year()) < newEvent.EventDate.Day) && (newEvent.EventDate.Year == time.Now().Year()) && (newEvent.EventDate.Month == int(time.Now().Month()))) || newEvent.EventDate.Year < time.Now().Year() || (newEvent.EventDate.Year <= time.Now().Year() && newEvent.EventDate.Month < int(time.Now().Month()) || ((newEvent.EventDate.Year == time.Now().Year() && newEvent.EventDate.Month == int(time.Now().Month())) && newEvent.EventDate.Day <= time.Now().Day())) {
+		err = errors.New("events can only be generated for future")
+		return lsdb.LotteryEventInfo{}, err
 	}
 
 	for i := 0; i < len(newEvent.WinningNumber); i++ {
 		if newEvent.WinningNumber[i] < 1 || newEvent.WinningNumber[i] > 90 {
-			str = "Wining numbers should be greater than 0 and less than 90"
-			return lsdb.LotteryEventInfo{}, str
+			err = errors.New("winning numbers should be greater than 0 and less than 90")
+			return lsdb.LotteryEventInfo{}, err
 		}
 		count := 0
 		for j := 0; j < len(newEvent.WinningNumber); j++ {
@@ -47,32 +52,33 @@ func validateAddEvent(newEvent AddNewEventReq) (lsdb.LotteryEventInfo, string) {
 			}
 		}
 		if count > 1 {
-			str = "Wining numbers should be different"
-			return lsdb.LotteryEventInfo{}, str
+			err = errors.New("winning numbers should not be same")
+			return lsdb.LotteryEventInfo{}, err
 		}
 	}
 
 	if _, ok := events[newEvent.Name]; !ok {
-		str = "Invalid Event"
-		return lsdb.LotteryEventInfo{}, str
+		err = errors.New("invalid Event")
+		return lsdb.LotteryEventInfo{}, err
 	}
 
-	var result bool = false
+	var result bool
 
 	for _, value := range events {
 		if value == newEvent.EventType {
 			result = true
+			break
 		}
 	}
 
 	if !result {
-		str = "Event type does not exist"
-		return lsdb.LotteryEventInfo{}, str
+		err = errors.New("event type does not exist")
+		return lsdb.LotteryEventInfo{}, err
 	}
 
 	if events[newEvent.Name] != newEvent.EventType {
-		str = "Event does not match event type"
-		return lsdb.LotteryEventInfo{}, str
+		err = errors.New("event does not match event type")
+		return lsdb.LotteryEventInfo{}, err
 	}
 
 	eventinfo := lsdb.LotteryEventInfo{
@@ -81,7 +87,7 @@ func validateAddEvent(newEvent AddNewEventReq) (lsdb.LotteryEventInfo, string) {
 		WinningNumber: newEvent.WinningNumber,
 		EventType:     newEvent.EventType,
 	}
-	return eventinfo, str
+	return eventinfo, nil
 }
 
 func initializeEventInfo(resp []lsdb.LotteryEventInfo) []EventsInfo {
@@ -111,9 +117,10 @@ func (s Server) addNewEvent(c *gin.Context) {
 		fmt.Println(addEvent)
 		return
 	}
-	validation, message := validateAddEvent(addEvent)
-	if message != "" {
-		c.JSON(http.StatusBadRequest, message)
+	validation, err := validateAddEvent(addEvent)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err.Error())
+		s.Logger.Error(err.Error())
 		return
 	}
 
@@ -130,6 +137,7 @@ func (s Server) validateEventId(str string) (bool, error) {
 
 	resp, err := s.getEventInfo()
 	if err != nil {
+		s.Logger.Error(err.Error())
 		return false, err
 	}
 
@@ -151,12 +159,12 @@ func (s Server) deleteEvent(c *gin.Context) {
 	validation, _ := s.validateEventId(eventid)
 	if !validation {
 		c.JSON(http.StatusBadRequest, "EventId does not exist")
+		s.Logger.Error("invalid event id")
 		return
 	}
 
 	if err := s.Client.DeleteEvent(stringToPrimitive(eventid)); err != nil {
 		c.JSON(http.StatusInternalServerError, "something is wrong with the server")
-		s.Logger.Error(err.Error())
 		return
 	}
 
@@ -172,7 +180,8 @@ func (s Server) eventInfo(c *gin.Context) {
 
 	eventInfo, err := s.getEventByQueryParams(eventType, date, startDate, endDate)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, "Problem with the server")
+		c.JSON(http.StatusBadRequest, "Invalid Input")
+		s.Logger.Error(err.Error())
 		return
 	}
 
@@ -199,32 +208,20 @@ func (s Server) getEventByQueryParams(eventType, date, startDate, endDate string
 }
 
 func (s Server) getEventInfoByDateRange(startDate, endDate string) ([]EventsInfo, error) {
-	initialDate := strings.Split(startDate, "-")
-
-	intStartYear, _ := strconv.Atoi(initialDate[0])
-	intStartMonth, _ := strconv.Atoi(initialDate[1])
-	intStartDay, _ := strconv.Atoi(initialDate[2])
-
-	startRangeDate := Date{
-		Year:  intStartYear,
-		Month: intStartMonth,
-		Day:   intStartDay,
-	}
-
-	lastDate := strings.Split(endDate, "-")
-
-	intEndYear, _ := strconv.Atoi(lastDate[0])
-	intEndMonth, _ := strconv.Atoi(lastDate[1])
-	intEndDay, _ := strconv.Atoi(lastDate[2])
-
-	endRangeDate := Date{
-		Year:  intEndYear,
-		Month: intEndMonth,
-		Day:   intEndDay,
-	}
-	resp, err := s.Client.GetEventByDateRange(convertTimeToPrimitive(startRangeDate), convertTimeToPrimitive(endRangeDate))
-
+	eventStartDate, err := convertStringToDate(startDate)
 	if err != nil {
+		return []EventsInfo{}, err
+	}
+
+	eventEndDate, err := convertStringToDate(endDate)
+	if err != nil {
+		return []EventsInfo{}, err
+	}
+
+	resp, err := s.Client.GetEventByDateRange(convertTimeToPrimitive(eventStartDate), convertTimeToPrimitive(eventEndDate))
+	if err != nil {
+		err := errors.New("invalid date")
+		s.Logger.Error(err.Error())
 		return []EventsInfo{}, err
 	}
 
@@ -263,28 +260,75 @@ func (s Server) getEventInfoByType(eventType string) ([]EventsInfo, error) {
 	if err != nil {
 		return []EventsInfo{}, err
 	}
+
+	var result bool
+
+	for _, value := range events {
+		if value == eventType {
+			result = true
+			break
+		}
+	}
+
+	if !result {
+		err = errors.New("event type does not exist")
+		return []EventsInfo{}, err
+	}
+
 	eventInfo := initializeEventInfo(resp)
 	return eventInfo, nil
 }
 
 func (s Server) getEventInfoByDate(date string) ([]EventsInfo, error) {
 
-	eventDate := strings.Split(date, "-")
-	intYear, _ := strconv.Atoi(eventDate[0])
-	intMonth, _ := strconv.Atoi(eventDate[1])
-	intDay, _ := strconv.Atoi(eventDate[2])
-
-	eventdate := Date{
-		Year:  intYear,
-		Month: intMonth,
-		Day:   intDay,
+	eventDate, err := convertStringToDate(date)
+	if err != nil {
+		return []EventsInfo{}, err
 	}
 
-	resp, err := s.Client.GetEventsByDate(convertTimeToPrimitive(eventdate))
+	resp, err := s.Client.GetEventsByDate(convertTimeToPrimitive(eventDate))
 	if err != nil {
+		err := errors.New("invalid date")
+		s.Logger.Error(err.Error())
+		return []EventsInfo{}, err
+	}
+
+	if len(resp) == 0 {
+		err := errors.New("invalid date")
+		s.Logger.Error(err.Error())
 		return []EventsInfo{}, err
 	}
 
 	result := initializeEventInfo(resp)
 	return result, nil
+}
+
+func convertStringToDate(date string) (Date, error) {
+	var d Date
+
+	dateArr := strings.Split(date, "-")
+	if len(date) != 3 {
+		return d, fmt.Errorf("invalid date")
+	}
+
+	intYear, err := strconv.Atoi(dateArr[0])
+	if err != nil {
+		return d, err
+	}
+	intMonth, err := strconv.Atoi(dateArr[1])
+	if err != nil {
+		return d, err
+	}
+	intDay, err := strconv.Atoi(dateArr[2])
+	if err != nil {
+		return d, err
+	}
+
+	d = Date{
+		Year:  intYear,
+		Month: intMonth,
+		Day:   intDay,
+	}
+
+	return d, nil
 }
