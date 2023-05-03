@@ -150,6 +150,12 @@ func (s Server) getUserByQueryParams(phonenumber, uid, govid string) (UserInfo, 
 func (s Server) userInfoByEventId(c *gin.Context) {
 
 	eventId := c.Query("eventId")
+	validation, _ := s.validateEventId(eventId)
+	if !validation {
+		c.JSON(http.StatusBadRequest, "EventId does not exist")
+		return
+	}
+
 	resp, err := s.Client.GetParticipantsInfoByEventID(stringToPrimitive(eventId))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, "something is wrong with the server")

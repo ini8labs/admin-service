@@ -134,12 +134,6 @@ func (s Server) validateEventId(str string) (bool, error) {
 func (s Server) deleteEvent(c *gin.Context) {
 	eventid := c.Param("EventUID")
 
-	// resp, err := s.getEventInfo()
-	// if err != nil {
-	// 	c.JSON(http.StatusInternalServerError, "Internal Server Error")
-	// 	return
-	// }
-
 	validation, _ := s.validateEventId(eventid)
 	if !validation {
 		c.JSON(http.StatusBadRequest, "EventId does not exist")
