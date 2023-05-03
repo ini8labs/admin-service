@@ -17,7 +17,7 @@ func stringToPrimitive(s string) primitive.ObjectID {
 
 func convertTimeToPrimitive(date Date) primitive.DateTime {
 
-	d := time.Date(date.Year, time.Month(date.Month), date.Day, 0, 0, 0, 0, time.Local)
+	d := time.Date(date.Year, time.Month(date.Month), date.Day, 0, 0, 0, 0, time.UTC)
 
 	return primitive.NewDateTimeFromTime(d)
 

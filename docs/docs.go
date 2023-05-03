@@ -149,7 +149,7 @@ const docTemplate = `{
 					],
 					"parameters":[
 					  {
-						"description": "Get user info by event type",
+						"description": "Get event info by event type",
 						"name": "eventType",
 						"in": "query",
 						"type": "string",
@@ -163,10 +163,10 @@ const docTemplate = `{
 						"required": false
 						},
 					  {
-						"description": "Get user info by date range",
+						"description": "Get event info by date range",
 						"name": ["startDate","endDate"],
 						"in": "query",
-									"type": "string",
+						"type": "string",
 						"required": false
 								}
 					],

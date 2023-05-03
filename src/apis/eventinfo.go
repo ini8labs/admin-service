@@ -19,29 +19,28 @@ var events map[string]string = map[string]string{
 	"National Weekly":  "NW",
 }
 
-func (s Server) addNewEvent(c *gin.Context) {
-
-	var newEvent AddNewEventReq
-
-	if err := c.ShouldBind(&newEvent); err != nil {
-		c.JSON(http.StatusBadRequest, "bad Format")
-		s.Logger.Error(err.Error())
-		fmt.Println(newEvent)
-		return
-	}
+func validateAddEvent(newEvent AddNewEventReq) (lsdb.LotteryEventInfo, string) {
 
 	date := convertTimeToPrimitive(newEvent.EventDate)
+	var str string = ""
 
 	for i := 0; i < len(newEvent.WinningNumber); i++ {
 		if newEvent.WinningNumber[i] < 1 || newEvent.WinningNumber[i] > 90 {
-			c.JSON(http.StatusBadRequest, "Win numbers should be greater than 0 and less than 90")
-			return
+			str = "Wining numbers should be greater than 0 and less than 90"
+			return lsdb.LotteryEventInfo{}, str
+		}
+
+		for j := 0; j < len(newEvent.WinningNumber); j++ {
+			if newEvent.WinningNumber[i] == newEvent.WinningNumber[j] {
+				str = "Wining numbers should be different"
+				return lsdb.LotteryEventInfo{}, str
+			}
 		}
 	}
 
 	if _, ok := events[newEvent.Name]; !ok {
-		c.JSON(http.StatusBadRequest, "Invalid Event")
-		return
+		str = "Invalid Event"
+		return lsdb.LotteryEventInfo{}, str
 	}
 
 	var result bool = false
@@ -53,13 +52,13 @@ func (s Server) addNewEvent(c *gin.Context) {
 	}
 
 	if !result {
-		c.JSON(http.StatusBadRequest, "Event type does not exist")
-		return
+		str = "Event type does not exist"
+		return lsdb.LotteryEventInfo{}, str
 	}
 
 	if events[newEvent.Name] != newEvent.EventType {
-		c.JSON(http.StatusBadRequest, "Event does not match event type")
-		return
+		str = "Event does not match event type"
+		return lsdb.LotteryEventInfo{}, str
 	}
 
 	eventinfo := lsdb.LotteryEventInfo{
@@ -68,8 +67,26 @@ func (s Server) addNewEvent(c *gin.Context) {
 		WinningNumber: newEvent.WinningNumber,
 		EventType:     newEvent.EventType,
 	}
+	return eventinfo, str
+}
 
-	if err := s.Client.AddNewEvent(eventinfo); err != nil {
+func (s Server) addNewEvent(c *gin.Context) {
+
+	var addEvent AddNewEventReq
+
+	if err := c.ShouldBind(&addEvent); err != nil {
+		c.JSON(http.StatusBadRequest, "bad Format")
+		s.Logger.Error(err.Error())
+		fmt.Println(addEvent)
+		return
+	}
+	validation, message := validateAddEvent(addEvent)
+	if message != "" {
+		c.JSON(http.StatusBadRequest, message)
+		return
+	}
+
+	if err := s.Client.AddNewEvent(validation); err != nil {
 		c.JSON(http.StatusInternalServerError, "something is wrong with the server")
 		s.Logger.Error(err.Error())
 		return
