@@ -4,8 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -135,18 +133,18 @@ func (s Server) addNewEvent(c *gin.Context) {
 func (s Server) validateEventId(str string) (bool, error) {
 	eventIdExist := true
 
-	resp, err := s.getEventInfo()
+	resp, err := s.GetAllEvents()
 	if err != nil {
 		s.Logger.Error(err.Error())
 		return false, err
 	}
 
 	for i := 0; i < len(resp); i++ {
-		if resp[i].EventUID == str {
+		if resp[i].EventUID == stringToPrimitive(str) {
 			eventIdExist = true
 			break
 		}
-		if resp[i].EventUID != str {
+		if resp[i].EventUID != stringToPrimitive(str) {
 			eventIdExist = false
 		}
 	}
@@ -180,7 +178,7 @@ func (s Server) eventInfo(c *gin.Context) {
 
 	eventInfo, err := s.getEventByQueryParams(eventType, date, startDate, endDate)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, err)
+		c.JSON(http.StatusBadRequest, err.Error())
 		s.Logger.Error(err.Error())
 		return
 	}
@@ -198,10 +196,16 @@ func (s Server) getEventByQueryParams(eventType, date, startDate, endDate string
 		eventInfo, err = s.getEventInfoByType(eventType)
 	case date != "":
 		eventInfo, err = s.getEventInfoByDate(date)
-	case startDate != "" && endDate != "":
+	case startDate != "" || endDate != "":
+		if startDate == "" {
+			firstDayOfYear := time.Date(time.Now().Year(), time.January, 1, 0, 0, 0, 0, time.UTC)
+			startDate = convertTimeToString(firstDayOfYear)
+		}
+		if endDate == "" {
+			lastDayOfYear := time.Date(time.Now().Year(), time.December, 31, 0, 0, 0, 0, time.UTC)
+			endDate = convertTimeToString(lastDayOfYear)
+		}
 		eventInfo, err = s.getEventInfoByDateRange(startDate, endDate)
-	default:
-		eventInfo, err = s.getEventInfo()
 	}
 
 	return eventInfo, err
@@ -229,14 +233,14 @@ func (s Server) getEventInfoByDateRange(startDate, endDate string) ([]EventsInfo
 	return result, nil
 }
 
-func (s Server) getEventInfo() ([]EventsInfo, error) {
+func (s Server) getEventInfo(c *gin.Context) {
 	resp, err := s.Client.GetAllEvents()
 	if err != nil {
-		return []EventsInfo{}, err
+		c.JSON(http.StatusInternalServerError, "Server Error")
 	}
 
 	result := initializeEventInfo(resp)
-	return result, nil
+	c.JSON(http.StatusOK, result)
 }
 
 // func (s Server) GetEventWinners(c *gin.Context) {
@@ -289,47 +293,14 @@ func (s Server) getEventInfoByDate(date string) ([]EventsInfo, error) {
 	resp, err := s.Client.GetEventsByDate(convertTimeToPrimitive(eventDate))
 	if err != nil {
 		err := errors.New("invalid date")
-		s.Logger.Error(err.Error())
 		return []EventsInfo{}, err
 	}
 
 	if len(resp) == 0 {
 		err := errors.New("invalid date")
-		s.Logger.Error(err.Error())
 		return []EventsInfo{}, err
 	}
 
 	result := initializeEventInfo(resp)
 	return result, nil
-}
-
-func convertStringToDate(date string) (Date, error) {
-	var d Date
-
-	dateArr := strings.Split(date, "-")
-
-	if len(dateArr) != 3 {
-		return d, fmt.Errorf("invalid date")
-	}
-
-	intYear, err := strconv.Atoi(dateArr[0])
-	if err != nil {
-		return d, err
-	}
-	intMonth, err := strconv.Atoi(dateArr[1])
-	if err != nil {
-		return d, err
-	}
-	intDay, err := strconv.Atoi(dateArr[2])
-	if err != nil {
-		return d, err
-	}
-
-	d = Date{
-		Year:  intYear,
-		Month: intMonth,
-		Day:   intDay,
-	}
-
-	return d, nil
 }

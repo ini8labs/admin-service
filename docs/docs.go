@@ -16,8 +16,34 @@ const docTemplate = `{
 			"version": "{{.Version}}"
 		},
 		"paths": {
+			"/events":{
+				"get":{
+					"summary": "Get info of all events",
+					"tags": ["Events"],
+					"responses": {
+						"500":{
+							"description":"Internal Server Error"
+						},
+						"200":{
+							"description": "OK",
+						"schema": {
+							"type":"object",
+							"example":
+							  {
+								"user_id": "6443a1e99c150ed9e52c5bdd",
+								"name": "Anand",
+								"phone": 7506639417,
+								"gov_id": "ABCDEFG",
+								"e_mail": "anand@ini8labs.tech"
+							  }
+						}
+					}
+				}
+			}
+			},
 			"/event/Add":{
 				"post":{
+					"summary":"Add a new event",
 					"tags":["Events"],
 					"parameters":[
 						{
@@ -64,7 +90,7 @@ const docTemplate = `{
 						"201": {
 							"schema": {
 								"type": "string",
-						"example": "user info added successfully"
+						"example": "event added successfully"
 							}
 						}
 					}
@@ -72,6 +98,7 @@ const docTemplate = `{
 			},
 			"/users":{
 				"get":{
+					"summary":"Get participants info by event id",
 					"tags":["User"],
 					"description":"Get user info by event Id",
 					"consumes": [
@@ -139,6 +166,7 @@ const docTemplate = `{
 			},
 			"/event":{
 				"get":{
+					"summary":"Get event info by event type, date or date range",
 					"tags": ["Events"],
 					"description": "Get Event Info",
 					"consumes": [
@@ -163,15 +191,25 @@ const docTemplate = `{
 						"required": false
 						},
 						{
-							"description": "Get user info by date range",
-							"name": "start_date|end_date",
+							"name": "startDate",
 							"in": "query",
-							"type": "string",
-							"style": "pipeDelimited",
-							"explode": false,
-							"allowReserved": true,
-							"required": false
-									}
+							"description": "Start date (yyyy-mm-dd)",
+							"schema": {
+							  "type": "string",
+							  "format": "date",
+							  "example": "2023-05-01"
+							}
+						  },
+						  {
+							"name": "endDate",
+							"in": "query",
+							"description": "End date (yyyy-mm-dd)",
+							"schema": {
+							  "type": "string",
+							  "format": "date",
+							  "example": "2023-05-03"
+							}
+						  }
 					],
 					"responses": {
 					  "200": {
@@ -215,6 +253,7 @@ const docTemplate = `{
 			},
 			"/event/{EventUID}":{
 				"delete": {
+					"summary":"Delete an event by event Id",
 					"tags": ["Events"],
 					"parameters": [
 						{
@@ -238,6 +277,7 @@ const docTemplate = `{
 			},
 			"/user":{
 			  "get":{
+				"summary":"Get user info by phone number, User Id or govt Id",
 				"tags": ["User Info"],
 				"description": "Get User Info",
 				"consumes": [
