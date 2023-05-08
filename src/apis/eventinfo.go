@@ -28,6 +28,11 @@ func validateAddEvent(newEvent AddNewEventReq) (lsdb.LotteryEventInfo, error) {
 		return lsdb.LotteryEventInfo{}, err
 	}
 
+	if daysInMonth(newEvent.EventDate.Month, newEvent.EventDate.Year) < newEvent.EventDate.Day {
+		err = errors.New("invalid date")
+		return lsdb.LotteryEventInfo{}, err
+	}
+
 	if daysInMonth(int(time.Now().Month()), time.Now().Year()) < newEvent.EventDate.Day || newEvent.EventDate.Day < 1 || newEvent.EventDate.Month > 12 || newEvent.EventDate.Month < 1 {
 		err = errors.New("invalid date")
 		return lsdb.LotteryEventInfo{}, err
