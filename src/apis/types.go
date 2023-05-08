@@ -58,14 +58,3 @@ type GetEventsByDate struct {
 	StartDate Date `json:"start_date"`
 	EndDate   Date `json:"end_date"`
 }
-
-type AddWinner struct {
-	UserID    string `json:"user_id"`
-	EventUID  string `json:"event_id"`
-	AmountWon int    `json:"amountWon"`
-	Name      string `json:"user_name"`
-	Phone     int64  `json:"phone"`
-	EMail     string `json:"e_mail"`
-	EventDate Date   `json:"event_date"`
-	WinType   string `json:"winType"`
-}
