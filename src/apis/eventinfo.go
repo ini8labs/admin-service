@@ -243,22 +243,6 @@ func (s Server) getEventInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// func (s Server) GetEventWinners(c *gin.Context) {
-// 	eventid := c.Query("eventid")
-// 	id, err := primitive.ObjectIDFromHex(eventid)
-// 	if err != nil {
-// 		s.Logger.Error(err.Error())
-// 	}
-
-// 	resp, err := s.Client.GetEventWinners(id)
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, "something is wrong with the server")
-// 		s.Logger.Error(err.Error())
-// 		return
-// 	}
-// 	c.JSON(http.StatusOK, resp)
-// }
-
 func (s Server) getEventInfoByType(eventType string) ([]EventsInfo, error) {
 	resp, err := s.Client.GetEventsByType(eventType)
 	if err != nil {

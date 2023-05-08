@@ -41,61 +41,6 @@ const docTemplate = `{
 				}
 			}
 			},
-			"/event/Add":{
-				"post":{
-					"summary":"Add a new event",
-					"tags":["Events"],
-					"parameters":[
-						{
-							"summary":"Add a new event",
-							"name":"info",
-							"in":"body",
-							"schema":{
-								"type":"object",
-								"properties":{
-									"event_date":{
-										"type":"object",
-									"properties": {
-										"day":{
-											"type":"integer",
-											"example": 8
-										},
-										"month":{
-											"type":"integer",
-											"example": 5
-										},
-										"year":{
-											"type":"integer",
-											"example": 2023
-										}
-									}
-									},
-									"name":{
-										"type":"string",
-										"example":"Monday Special"
-									},
-									"event_type":{
-										"type":"string",
-										"example":"MS"
-									},
-									"win_number":{
-										"type":"array",
-										"example":[34,65,78,3,4]
-									}
-								}
-							}
-						}
-					],
-					"responses":{
-						"201": {
-							"schema": {
-								"type": "string",
-						"example": "event added successfully"
-							}
-						}
-					}
-				}
-			},
 			"/users":{
 				"get":{
 					"summary":"Get participants info by event id",
@@ -165,6 +110,59 @@ const docTemplate = `{
 				}
 			},
 			"/event":{
+				"post":{
+					"summary":"Add a new event",
+					"tags":["Events"],
+					"parameters":[
+						{
+							"name":"info",
+							"in":"body",
+							"schema":{
+								"type":"object",
+								"properties":{
+									"event_date":{
+										"type":"object",
+										"properties": {
+											"day":{
+												"type":"integer",
+												"example": 8
+											},
+											"month":{
+												"type":"integer",
+												"example": 5
+											},
+											"year":{
+												"type":"integer",
+												"example": 2023
+											}
+										}
+									},
+									"name":{
+										"type":"string",
+										"example":"Monday Special"
+									},
+									"event_type":{
+										"type":"string",
+										"example":"MS"
+									},
+									"win_number":{
+										"type":"array",
+										"example":[34,65,78,3,4]
+									}
+								}
+							}
+						}
+					],
+					"responses":{
+						"201": {
+							"description": "ok",
+							"schema": {
+								"type": "string",
+						"example": "user info added successfully"
+							}
+						}
+					}
+			},
 				"get":{
 					"summary":"Get event info by event type, date or date range",
 					"tags": ["Events"],
@@ -278,7 +276,7 @@ const docTemplate = `{
 			"/user":{
 			  "get":{
 				"summary":"Get user info by phone number, User Id or govt Id",
-				"tags": ["User Info"],
+				"tags": ["User"],
 				"description": "Get User Info",
 				"consumes": [
 				  "application/json"

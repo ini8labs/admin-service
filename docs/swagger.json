@@ -7,12 +7,16 @@
         "contact": {},
         "version": "{{.Version}}"
     },
-    "paths": {
+	"paths": {
 		"/events":{
+			
 			"get":{
 				"summary": "Get info of all events",
 				"tags": ["Events"],
 				"responses": {
+					"500":{
+						"description":"Internal Server Error"
+					},
 					"200":{
 						"description": "OK",
 					"schema": {
@@ -30,7 +34,75 @@
 			}
 		}
 		},
-		"/event/Add":{
+		"/users":{
+			"get":{
+				"summary":"Get participants info by event id",
+				"tags":["User"],
+				"description":"Get user info by event Id",
+				"consumes": [
+				  "application/json"
+				],
+				"produces": [
+				  "application/json"
+				],
+				"parameters": [
+					{
+						"description": "Get user info by event id",
+						"name": "eventId",
+						"in": "query",
+						"type": "string",
+						"required": true
+					}
+				],
+				"responses":{
+					"200": {
+					"description": "OK",
+					"schema": {
+						"type":"array",
+						"example":[
+							{
+								"event_id": "6443ce519e3f8c9e2af517fb",
+								"event_date": {},
+								"username": "Randolph2",
+								"betid": "6447d115dd1461c143840312",
+								"user_id": "644790a68e3540cbb44180b0",
+								"bet_numbers": [
+									1,
+									2,
+									3,
+									4
+								],
+								"amount": 12,
+								"phone": 1234543435
+							}
+						]
+					}
+				  },
+				  "400":{
+					"description": "The server did not understand the request.",
+					"schema": {
+					  "type":"string",
+					  "example":"Bad Format"
+					}
+				  },
+				  "404":{
+					"description": "The server cannot find the requested page.",
+					"schema": {
+					  "type":"string",
+					  "example":"Page Not Found"
+					}
+				  },
+				  "500":{
+					"description": "The server can not find the requested page.",
+					"schema": {
+					  "type":"string",
+					  "example":"Internal Server Error"
+						}
+					}
+				}
+			}
+		},
+		"/event":{
 			"post":{
 				"summary":"Add a new event",
 				"tags":["Events"],
@@ -83,77 +155,9 @@
 						}
 					}
 				}
-				}
 		},
-		"/users":{
 			"get":{
-				"tags":["User"],
-				"description":"Get user info by event Id",
-				"consumes": [
-				  "application/json"
-				],
-				"produces": [
-				  "application/json"
-				],
-				"parameters": [
-						{
-							"description": "Get user info by event id",
-							"name": "event_id",
-							"in": "query",
-							"type": "string",
-							"required": true
-						}
-				],
-				"responses": {
-					"200": {
-						"description": "OK",
-						"schema": {
-							"type":"array",
-							"example":[
-								{
-									"event_id": "6443ce519e3f8c9e2af517fb",
-									"event_date": {},
-									"username": "Randolph2",
-									"betid": "6447d115dd1461c143840312",
-									"user_id": "644790a68e3540cbb44180b0",
-									"bet_numbers": [
-										1,
-										2,
-										3,
-										4
-									],
-									"amount": 12,
-									"phone": 1234543435
-								}
-							]
-						}
-					  },
-					  "400":{
-						"description": "The server did not understand the request.",
-						"schema": {
-						  "type":"string",
-						  "example":"Bad Format"
-						}
-					  },
-					  "404":{
-						"description": "The server cannot find the requested page.",
-						"schema": {
-						  "type":"string",
-						  "example":"Page Not Found"
-						}
-					  },
-					  "500":{
-						"description": "The server can not find the requested page.",
-						"schema": {
-						  "type":"string",
-						  "example":"Internal Server Error"
-						}
-					}
-				}
-			}
-		},
-		"/event":{
-			"get":{
+				"summary":"Get event info by event type, date or date range",
 				"tags": ["Events"],
 				"description": "Get Event Info",
 				"consumes": [
@@ -164,43 +168,40 @@
 				],
 				"parameters":[
 				  {
-					"description": "Get user info by event type",
-					"name": "event_type",
+					"description": "Get event info by event type",
+					"name": "eventType",
 					"in": "query",
 					"type": "string",
 					"required": false
 					},
 					{
 					"description": "Get event info by date",
-					"name": "event_date",
+					"name": "date",
 					"in": "query",
 					"type": "string",
 					"required": false
 					},
-		
-						{
-							"name": "startDate",
-							"in": "query",
-							"description": "Start date (yyyy-mm-dd)",
-							"required": true,
-							"schema": {
-							  "type": "string",
-							  "format": "date",
-							  "example": "2023-05-01"
-							}
-						  },
-						  {
-							"name": "endDate",
-							"in": "query",
-							"description": "End date (yyyy-mm-dd)",
-							"required": true,
-							"schema": {
-							  "type": "string",
-							  "format": "date",
-							  "example": "2023-05-03"
-							}
-						  }
-					],
+					{
+						"name": "startDate",
+						"in": "query",
+						"description": "Start date (yyyy-mm-dd)",
+						"schema": {
+						  "type": "string",
+						  "format": "date",
+						  "example": "2023-05-01"
+						}
+					  },
+					  {
+						"name": "endDate",
+						"in": "query",
+						"description": "End date (yyyy-mm-dd)",
+						"schema": {
+						  "type": "string",
+						  "format": "date",
+						  "example": "2023-05-03"
+						}
+					  }
+				],
 				"responses": {
 				  "200": {
 					"description": "OK",
@@ -241,33 +242,34 @@
 					}
 				}
 		},
-		"/event/:EventUID":{
+		"/event/{EventUID}":{
 			"delete": {
+				"summary":"Delete an event by event Id",
 				"tags": ["Events"],
 				"parameters": [
 					{
 						"description": "enter a valid event id",
-                        "name": "EventUID",
-                        "in": "path",
-                        "required": true,
-                        "type": "string"
+						"name": "EventUID",
+						"in": "path",
+						"required": true,
+						"type": "string"
 					}
 				],
 				"responses": {
 					"200":{
 						"description": "Event information deleted successfully",
-                        "schema": {
-                            "type": "string",
-                            "example": "Event information deleted successfully"
-                        }
+						"schema": {
+							"type": "string",
+							"example": "Event information deleted successfully"
+						}
 					}
 				}
 			}
-
 		},
 		"/user":{
 		  "get":{
-			"tags": ["User Info"],
+			"summary":"Get user info by phone number, User Id or govt Id",
+			"tags": ["User"],
 			"description": "Get User Info",
 			"consumes": [
 			  "application/json"
@@ -280,21 +282,21 @@
 				"description": "Get user info by phone number",
 				"name": "phone",
 				"in": "query",
-							"type": "string",
+				"type": "string",
 				"required": false
 						},
 						{
 				"description": "Get user info by uid",
-				"name": "user_id",
+				"name": "uid",
 				"in": "query",
-							"type": "string",
+				"type": "string",
 				"required": false
 						},
 			  {
 				"description": "Get user info by govt id",
-				"name": "gov_id",
+				"name": "govid",
 				"in": "query",
-							"type": "string",
+				"type": "string",
 				"required": false
 						}
 			],
@@ -321,20 +323,13 @@
 				  "example":"Bad Format"
 				}
 			  },
-			  "404":{
-				"description": "The server cannot find the requested page.",
-				"schema": {
-				  "type":"string",
-				  "example":"Page Not Found"
-				}
-			  },
 			  "500":{
 				"description": "The server can not find the requested page.",
 				"schema": {
 				  "type":"string",
 				  "example":"Internal Server Error"
 						}
-			  		}	
+					}
 				}
 			}
 		}
