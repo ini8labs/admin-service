@@ -9,44 +9,44 @@ import (
 	"github.com/ini8labs/lsdb"
 )
 
-func initializeUserInfo(resp *lsdb.UserInfo, str string) UserInfo {
+func initializeUserInfo(userInfo *lsdb.UserInfo, str string) UserInfo {
 	var userinfo UserInfo
 
-	if resp.GovID == str {
-		userinfo.Name = resp.Name
-		userinfo.UID = primitiveToString(resp.UID)
-		userinfo.Phone = resp.Phone
-		userinfo.GovID = resp.GovID
-		userinfo.EMail = resp.EMail
+	if userInfo.GovID == str {
+		userinfo.Name = userInfo.Name
+		userinfo.UID = primitiveToString(userInfo.UID)
+		userinfo.Phone = userInfo.Phone
+		userinfo.GovID = userInfo.GovID
+		userinfo.EMail = userInfo.EMail
 	}
 
 	return userinfo
 }
 
-func initializeUserInfoByPhone(resp *lsdb.UserInfo, num int) UserInfo {
+func initializeUserInfoByPhone(userInfo *lsdb.UserInfo, num int) UserInfo {
 	var userinfo UserInfo
 
-	if resp.Phone == int64(num) {
-		userinfo.Name = resp.Name
-		userinfo.UID = primitiveToString(resp.UID)
-		userinfo.Phone = resp.Phone
-		userinfo.GovID = resp.GovID
-		userinfo.EMail = resp.EMail
+	if userInfo.Phone == int64(num) {
+		userinfo.Name = userInfo.Name
+		userinfo.UID = primitiveToString(userInfo.UID)
+		userinfo.Phone = userInfo.Phone
+		userinfo.GovID = userInfo.GovID
+		userinfo.EMail = userInfo.EMail
 	}
 
 	return userinfo
 }
-func initializeUserInfoById(resp *lsdb.UserInfo, str string) UserInfo {
+func initializeUserInfoById(userInfo *lsdb.UserInfo, str string) UserInfo {
 	var userinfo UserInfo
 	id := stringToPrimitive(str)
 
-	if resp.UID == id {
+	if userInfo.UID == id {
 		userinfo = UserInfo{
-			Name:  resp.Name,
-			UID:   primitiveToString(resp.UID),
-			Phone: resp.Phone,
-			GovID: resp.GovID,
-			EMail: resp.EMail,
+			Name:  userInfo.Name,
+			UID:   primitiveToString(userInfo.UID),
+			Phone: userInfo.Phone,
+			GovID: userInfo.GovID,
+			EMail: userInfo.EMail,
 		}
 	}
 
@@ -118,22 +118,22 @@ func (s Server) getUserInfoByUID(uid string) (UserInfo, error) {
 	return userInfo, nil
 }
 
-func (s Server) initializeUserInfobByEventId(resp []lsdb.EventParticipantInfo, str string) ([]UserInfoByEventId, error) {
-	var arr []UserInfoByEventId
+func (s Server) initializeUserInfobByEventId(eventParticipantInfo []lsdb.EventParticipantInfo, str string) ([]UserInfoByEventId, error) {
+	var userInfoArr []UserInfoByEventId
 
-	for i := 0; i < len(resp); i++ {
+	for i := 0; i < len(eventParticipantInfo); i++ {
 		var userinfobyevent UserInfoByEventId
 
-		if resp[i].EventUID == stringToPrimitive(str) {
+		if eventParticipantInfo[i].EventUID == stringToPrimitive(str) {
 			userinfobyevent = UserInfoByEventId{
-				UserID:     primitiveToString(resp[i].UserID),
-				EventUID:   primitiveToString(resp[i].EventUID),
-				BetUID:     primitiveToString(resp[i].BetUID),
-				Amount:     resp[i].Amount,
-				BetNumbers: resp[i].BetNumbers,
+				UserID:     primitiveToString(eventParticipantInfo[i].UserID),
+				EventUID:   primitiveToString(eventParticipantInfo[i].EventUID),
+				BetUID:     primitiveToString(eventParticipantInfo[i].BetUID),
+				Amount:     eventParticipantInfo[i].Amount,
+				BetNumbers: eventParticipantInfo[i].BetNumbers,
 			}
 
-			resp2, err := s.Client.GetUserInfoByID(resp[i].UserID)
+			resp2, err := s.Client.GetUserInfoByID(eventParticipantInfo[i].UserID)
 			if err != nil {
 				return []UserInfoByEventId{}, err
 			}
@@ -143,10 +143,10 @@ func (s Server) initializeUserInfobByEventId(resp []lsdb.EventParticipantInfo, s
 				userinfobyevent.PhoneNumber = resp2.Phone
 			}
 
-			arr = append(arr, userinfobyevent)
+			userInfoArr = append(userInfoArr, userinfobyevent)
 		}
 	}
-	return arr, nil
+	return userInfoArr, nil
 }
 
 func (s Server) getUserByQueryParams(phonenumber, uid, govid string) (UserInfo, error) {

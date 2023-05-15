@@ -93,21 +93,21 @@ func validateAddEvent(newEvent AddNewEventReq) (lsdb.LotteryEventInfo, error) {
 	return eventinfo, nil
 }
 
-func initializeEventInfo(resp []lsdb.LotteryEventInfo) []EventsInfo {
-	var arr []EventsInfo
+func initializeEventInfo(lottteryEventInfo []lsdb.LotteryEventInfo) []EventsInfo {
+	var eventsInfoArr []EventsInfo
 
-	for i := 0; i < len(resp); i++ {
+	for i := 0; i < len(lottteryEventInfo); i++ {
 		eventinfo := EventsInfo{
-			EventUID:      primitiveToString(resp[i].EventUID),
-			EventDate:     convertPrimitiveToTime(resp[i].EventDate),
-			EventName:     resp[i].Name,
-			EventType:     resp[i].EventType,
-			WinningNumber: resp[i].WinningNumber,
+			EventUID:      primitiveToString(lottteryEventInfo[i].EventUID),
+			EventDate:     convertPrimitiveToTime(lottteryEventInfo[i].EventDate),
+			EventName:     lottteryEventInfo[i].Name,
+			EventType:     lottteryEventInfo[i].EventType,
+			WinningNumber: lottteryEventInfo[i].WinningNumber,
 		}
 
-		arr = append(arr, eventinfo)
+		eventsInfoArr = append(eventsInfoArr, eventinfo)
 	}
-	return arr
+	return eventsInfoArr
 }
 
 func (s Server) addNewEvent(c *gin.Context) {
@@ -135,7 +135,7 @@ func (s Server) addNewEvent(c *gin.Context) {
 	c.JSON(http.StatusCreated, "Event added successfully")
 }
 
-func (s Server) validateEventId(str string) (bool, error) {
+func (s Server) validateEventId(eventId string) (bool, error) {
 	eventIdExist := true
 
 	resp, err := s.GetAllEvents()
@@ -145,11 +145,11 @@ func (s Server) validateEventId(str string) (bool, error) {
 	}
 
 	for i := 0; i < len(resp); i++ {
-		if resp[i].EventUID == stringToPrimitive(str) {
+		if resp[i].EventUID == stringToPrimitive(eventId) {
 			eventIdExist = true
 			break
 		}
-		if resp[i].EventUID != stringToPrimitive(str) {
+		if resp[i].EventUID != stringToPrimitive(eventId) {
 			eventIdExist = false
 		}
 	}
