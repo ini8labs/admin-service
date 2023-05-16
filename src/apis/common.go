@@ -52,7 +52,6 @@ func daysInMonth(month, year int) int {
 
 func convertTimeToString(date time.Time) string {
 	str := date.Format("2006-01-02")
-
 	return str
 }
 
