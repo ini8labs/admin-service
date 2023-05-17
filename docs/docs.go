@@ -158,7 +158,7 @@ const docTemplate = `{
 							"description": "ok",
 							"schema": {
 								"type": "string",
-						"example": "user info added successfully"
+						"example": "event info added successfully"
 							}
 						}
 					}
@@ -349,8 +349,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:3000",
 	BasePath:         "/api/v1",
 	Schemes:          []string{"http"},
-	Title:            "My API",
-	Description:      "This is Lottery Project API",
+	Title:            "Admin Service API's",
+	Description:      "Lottery Project",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 }

@@ -238,8 +238,6 @@ func (s Server) getEventByQueryParams(eventType, date, startDate, endDate string
 	case startDate != "" || endDate != "":
 		if startDate == "" {
 			firstDayOfYear := time.Date(time.Now().Year(), time.January, 1, 0, 0, 0, 0, time.UTC)
-			fmt.Println(firstDayOfYear)
-			fmt.Println("@@@@@")
 			startDate = convertTimeToString(firstDayOfYear)
 		}
 		if endDate == "" {
