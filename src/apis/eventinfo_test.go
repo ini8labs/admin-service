@@ -52,8 +52,8 @@ func Test_validateDate(t *testing.T) {
 	}{
 		{
 			"valid input",
-			args{AddNewEventReq{EventDate: Date{Day: 17, Month: 5, Year: 2023}, Name: "Monday Special", EventType: "MS", WinningNumber: []int{34, 65, 78, 3, 4}}},
-			1684281600000,
+			args{AddNewEventReq{EventDate: Date{Day: 30, Month: 5, Year: 2023}, Name: "Monday Special", EventType: "MS", WinningNumber: []int{34, 65, 78, 3, 4}}},
+			1685404800000,
 			false,
 		},
 		{
@@ -215,8 +215,8 @@ func Test_validateAddEvent(t *testing.T) {
 	}{
 		{
 			"valid input",
-			args{AddNewEventReq{EventDate: Date{Day: 17, Month: 5, Year: 2023}, Name: "Monday Special", EventType: "MS", WinningNumber: []int{9, 65, 78, 3, 4}}},
-			lsdb.LotteryEventInfo{EventUID: stringToPrimitive("000000000000000000000000"), EventDate: 1684281600000, Name: "Monday Special", EventType: "MS", WinningNumber: []int{9, 65, 78, 3, 4}, CreatedAt: 0, UpdatedAt: 0},
+			args{AddNewEventReq{EventDate: Date{Day: 30, Month: 5, Year: 2023}, Name: "Monday Special", EventType: "MS", WinningNumber: []int{9, 65, 78, 3, 4}}},
+			lsdb.LotteryEventInfo{EventUID: stringToPrimitive("000000000000000000000000"), EventDate: 1685404800000, Name: "Monday Special", EventType: "MS", WinningNumber: []int{9, 65, 78, 3, 4}, CreatedAt: 0, UpdatedAt: 0},
 			false,
 		},
 		{

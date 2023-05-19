@@ -263,11 +263,11 @@ const docTemplate = `{
 						}
 					],
 					"responses": {
-						"200":{
-							"description": "Event information deleted successfully",
+						"204":{
+							"description": "Event deleted successfully",
 							"schema": {
 								"type": "string",
-								"example": "Event information deleted successfully"
+								"example": "Event deleted successfully"
 							}
 						}
 					}

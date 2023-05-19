@@ -191,21 +191,37 @@ func (s Server) validateEventId(eventId string) (bool, error) {
 }
 
 func (s Server) deleteEvent(c *gin.Context) {
-	eventid := c.Param("EventUID")
+	eventId := c.Param("EventUID")
 
-	validation, _ := s.validateEventId(eventid)
+	validation, _ := s.validateEventId(eventId)
 	if !validation {
 		c.JSON(http.StatusBadRequest, "EventId does not exist")
 		s.Logger.Error("invalid event id")
 		return
 	}
 
-	if err := s.Client.DeleteEvent(stringToPrimitive(eventid)); err != nil {
+	resp, err := s.Client.GetParticipantsInfoByEventID(stringToPrimitive(eventId))
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, "something is wrong with the server")
+		s.Logger.Error(err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, "Event deleted successfully")
+	for i := 0; i < len(resp); i++ {
+		if err := s.Client.DeleteUserBet(resp[i].BetUID); err != nil {
+			c.JSON(http.StatusInternalServerError, "something is wrong with the server")
+			s.Logger.Error(err.Error())
+			return
+		}
+	}
+
+	if err := s.Client.DeleteEvent(stringToPrimitive(eventId)); err != nil {
+		c.JSON(http.StatusInternalServerError, "something is wrong with the server")
+		s.Logger.Error(err.Error())
+		return
+	}
+
+	c.JSON(http.StatusNoContent, "event deleted successfully")
 }
 
 func (s Server) eventInfo(c *gin.Context) {
