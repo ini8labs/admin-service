@@ -7,8 +7,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ini8labs/lsdb"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	"github.com/ini8labs/lsdb"
 )
 
 var events map[string]string = map[string]string{
@@ -147,7 +148,6 @@ func (s Server) addNewEvent(c *gin.Context) {
 	if err := c.ShouldBind(&addEvent); err != nil {
 		c.JSON(http.StatusBadRequest, "bad Format")
 		s.Logger.Error(err.Error())
-		fmt.Println(addEvent)
 		return
 	}
 	validation, err := validateAddEvent(addEvent)

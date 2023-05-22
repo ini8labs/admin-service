@@ -20,10 +20,24 @@ func Test_initializeUserInfoByGovId(t *testing.T) {
 		{
 			"valid input",
 			args{
-				&lsdb.UserInfo{UID: stringToPrimitive("64457b80630b6fef47225939"), Name: "Anand", Phone: 7506639417, GovID: "ABCDEFG", EMail: "anand@ini8labs.tech", CreatedAT: "2023-04-24T00:10:00+05:30", UpdatedAT: "2023-04-24T00:10:00+05:30"},
+				&lsdb.UserInfo{
+					UID:       stringToPrimitive("64457b80630b6fef47225939"),
+					Name:      "Anand",
+					Phone:     7506639417,
+					GovID:     "ABCDEFG",
+					EMail:     "anand@ini8labs.tech",
+					CreatedAT: "2023-04-24T00:10:00+05:30",
+					UpdatedAT: "2023-04-24T00:10:00+05:30",
+				},
 				"ABCDEFG",
 			},
-			UserInfo{UID: "64457b80630b6fef47225939", Name: "Anand", Phone: 7506639417, GovID: "ABCDEFG", EMail: "anand@ini8labs.tech"},
+			UserInfo{
+				UID:   "64457b80630b6fef47225939",
+				Name:  "Anand",
+				Phone: 7506639417,
+				GovID: "ABCDEFG",
+				EMail: "anand@ini8labs.tech",
+			},
 		},
 		{
 			"invalid input",
@@ -56,10 +70,24 @@ func Test_initializeUserInfoByPhone(t *testing.T) {
 		{
 			"valid input",
 			args{
-				&lsdb.UserInfo{UID: stringToPrimitive("64457b80630b6fef47225939"), Name: "Anand", Phone: 7506639417, GovID: "ABCDEFG", EMail: "anand@ini8labs.tech", CreatedAT: "2023-04-24T00:10:00+05:30", UpdatedAT: "2023-04-24T00:10:00+05:30"},
+				&lsdb.UserInfo{
+					UID:       stringToPrimitive("64457b80630b6fef47225939"),
+					Name:      "Anand",
+					Phone:     7506639417,
+					GovID:     "ABCDEFG",
+					EMail:     "anand@ini8labs.tech",
+					CreatedAT: "2023-04-24T00:10:00+05:30",
+					UpdatedAT: "2023-04-24T00:10:00+05:30",
+				},
 				7506639417,
 			},
-			UserInfo{UID: "64457b80630b6fef47225939", Name: "Anand", Phone: 7506639417, GovID: "ABCDEFG", EMail: "anand@ini8labs.tech"},
+			UserInfo{
+				UID:   "64457b80630b6fef47225939",
+				Name:  "Anand",
+				Phone: 7506639417,
+				GovID: "ABCDEFG",
+				EMail: "anand@ini8labs.tech",
+			},
 		},
 		{
 			"invalid input",
@@ -92,10 +120,24 @@ func Test_initializeUserInfoByUserId(t *testing.T) {
 		{
 			"valid input",
 			args{
-				&lsdb.UserInfo{UID: stringToPrimitive("64457b80630b6fef47225939"), Name: "Anand", Phone: 7506639417, GovID: "ABCDEFG", EMail: "anand@ini8labs.tech", CreatedAT: "2023-04-24T00:10:00+05:30", UpdatedAT: "2023-04-24T00:10:00+05:30"},
+				&lsdb.UserInfo{
+					UID:       stringToPrimitive("64457b80630b6fef47225939"),
+					Name:      "Anand",
+					Phone:     7506639417,
+					GovID:     "ABCDEFG",
+					EMail:     "anand@ini8labs.tech",
+					CreatedAT: "2023-04-24T00:10:00+05:30",
+					UpdatedAT: "2023-04-24T00:10:00+05:30",
+				},
 				"64457b80630b6fef47225939",
 			},
-			UserInfo{UID: "64457b80630b6fef47225939", Name: "Anand", Phone: 7506639417, GovID: "ABCDEFG", EMail: "anand@ini8labs.tech"},
+			UserInfo{
+				UID:   "64457b80630b6fef47225939",
+				Name:  "Anand",
+				Phone: 7506639417,
+				GovID: "ABCDEFG",
+				EMail: "anand@ini8labs.tech",
+			},
 		},
 	}
 	for _, tt := range tests {
