@@ -1,7 +1,7 @@
 package apis
 
 import (
-	"github.com/admin-service/docs"
+	"github.com/ini8labs/admin-service/docs"
 
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
@@ -17,11 +17,11 @@ func NewServer(server Server) error {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	// API end point
-	r.GET("/api/v1/user", server.userInfo)
+	r.GET("/api/v1/user", server.UserInfo)
 
-	r.GET("/api/v1/users", server.userInfoByEventId)
+	r.GET("/api/v1/users", server.UserInfoByEventId)
 
-	r.GET("/api/v1/event", server.eventInfo)
+	r.GET("/api/v1/event", server.EventInfo)
 	r.POST("/api/v1/event", server.addNewEvent)
 	r.DELETE("/api/v1/event/:EventUID", server.deleteEvent)
 
