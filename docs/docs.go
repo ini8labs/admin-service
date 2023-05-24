@@ -21,9 +21,6 @@ const docTemplate = `{
 					"summary": "Get info of all events",
 					"tags": ["Events"],
 					"responses": {
-						"500":{
-							"description":"Internal Server Error"
-						},
 						"200":{
 							"description": "OK",
 						"schema": {
@@ -89,14 +86,14 @@ const docTemplate = `{
 						"description": "The server did not understand the request.",
 						"schema": {
 						  "type":"string",
-						  "example":"Bad Format"
+						  "example":"Invalid ID"
 						}
 					  },
 					  "404":{
 						"description": "The server cannot find the requested page.",
 						"schema": {
 						  "type":"string",
-						  "example":"Page Not Found"
+						  "example":"User Not Found"
 						}
 					  },
 					  "500":{
@@ -147,7 +144,7 @@ const docTemplate = `{
 									},
 									"win_number":{
 										"type":"array",
-										"example":[34,65,78,3,4]
+										"example":[12,29,62,55,89]
 									}
 								}
 							}
@@ -158,7 +155,7 @@ const docTemplate = `{
 							"description": "ok",
 							"schema": {
 								"type": "string",
-						"example": "user info added successfully"
+						"example": "event info added successfully"
 							}
 						}
 					}
@@ -186,26 +183,31 @@ const docTemplate = `{
 						"name": "date",
 						"in": "query",
 						"type": "string",
-						"required": false
+						"required": false,
+						"schema": {
+							"type": "string",
+							"format": "date",
+							"example": "yyyy-mm-dd"
+						  }
 						},
 						{
 							"name": "startDate",
 							"in": "query",
-							"description": "Start date (yyyy-mm-dd)",
+							"description": "Start date",
 							"schema": {
 							  "type": "string",
 							  "format": "date",
-							  "example": "2023-05-01"
+							  "example": "yyyy-mm-dd"
 							}
 						  },
 						  {
 							"name": "endDate",
 							"in": "query",
-							"description": "End date (yyyy-mm-dd)",
+							"description": "End date",
 							"schema": {
 							  "type": "string",
 							  "format": "date",
-							  "example": "2023-05-03"
+							  "example": "yyyy-mm-dd"
 							}
 						  }
 					],
@@ -263,11 +265,11 @@ const docTemplate = `{
 						}
 					],
 					"responses": {
-						"200":{
-							"description": "Event information deleted successfully",
+						"204":{
+							"description": "Event deleted successfully",
 							"schema": {
 								"type": "string",
-								"example": "Event information deleted successfully"
+								"example": "Event deleted successfully"
 							}
 						}
 					}
@@ -349,8 +351,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:3000",
 	BasePath:         "/api/v1",
 	Schemes:          []string{"http"},
-	Title:            "My API",
-	Description:      "This is Lottery Project API",
+	Title:            "Admin Service API's",
+	Description:      "Lottery Project",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 }

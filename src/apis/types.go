@@ -12,8 +12,8 @@ type Server struct {
 }
 
 type UserInfoByEventId struct {
-	EventUID    string `json:"event_id,omitempty"`
-	EventDate   Date   `json:"event_date,omitempty"`
+	EventUID string `json:"event_id,omitempty"`
+	// EventDate   Date   `json:"event_date,omitempty"`
 	UserName    string `json:"username,omitempty"`
 	EventName   string `json:"eventname,omitempty"`
 	EventType   string `json:"event_type,omitempty"`

@@ -6,13 +6,14 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/ini8labs/lsdb"
 )
 
-func initializeUserInfo(userInfo *lsdb.UserInfo, str string) UserInfo {
+func initializeUserInfoByGovId(userInfo *lsdb.UserInfo, govId string) UserInfo {
 	var userinfo UserInfo
 
-	if userInfo.GovID == str {
+	if userInfo.GovID == govId {
 		userinfo.Name = userInfo.Name
 		userinfo.UID = primitiveToString(userInfo.UID)
 		userinfo.Phone = userInfo.Phone
@@ -23,10 +24,10 @@ func initializeUserInfo(userInfo *lsdb.UserInfo, str string) UserInfo {
 	return userinfo
 }
 
-func initializeUserInfoByPhone(userInfo *lsdb.UserInfo, num int) UserInfo {
+func initializeUserInfoByPhone(userInfo *lsdb.UserInfo, phoneNumber int) UserInfo {
 	var userinfo UserInfo
 
-	if userInfo.Phone == int64(num) {
+	if userInfo.Phone == int64(phoneNumber) {
 		userinfo.Name = userInfo.Name
 		userinfo.UID = primitiveToString(userInfo.UID)
 		userinfo.Phone = userInfo.Phone
@@ -36,9 +37,9 @@ func initializeUserInfoByPhone(userInfo *lsdb.UserInfo, num int) UserInfo {
 
 	return userinfo
 }
-func initializeUserInfoById(userInfo *lsdb.UserInfo, str string) UserInfo {
+func initializeUserInfoByUserId(userInfo *lsdb.UserInfo, userId string) UserInfo {
 	var userinfo UserInfo
-	id := stringToPrimitive(str)
+	id := stringToPrimitive(userId)
 
 	if userInfo.UID == id {
 		userinfo = UserInfo{
@@ -98,7 +99,7 @@ func (s Server) getUserInfoByGovID(govId string) (UserInfo, error) {
 		s.Logger.Error(err.Error())
 		return UserInfo{}, err
 	}
-	userInfo := initializeUserInfo(resp, govId)
+	userInfo := initializeUserInfoByGovId(resp, govId)
 	return userInfo, nil
 }
 
@@ -114,17 +115,17 @@ func (s Server) getUserInfoByUID(uid string) (UserInfo, error) {
 		return UserInfo{}, err
 	}
 
-	userInfo := initializeUserInfoById(resp, uid)
+	userInfo := initializeUserInfoByUserId(resp, uid)
 	return userInfo, nil
 }
 
-func (s Server) initializeUserInfobByEventId(eventParticipantInfo []lsdb.EventParticipantInfo, str string) ([]UserInfoByEventId, error) {
+func (s Server) initializeUserInfobByEventId(eventParticipantInfo []lsdb.EventParticipantInfo, eventId string) ([]UserInfoByEventId, error) {
 	var userInfoArr []UserInfoByEventId
 
 	for i := 0; i < len(eventParticipantInfo); i++ {
 		var userinfobyevent UserInfoByEventId
 
-		if eventParticipantInfo[i].EventUID == stringToPrimitive(str) {
+		if eventParticipantInfo[i].EventUID == stringToPrimitive(eventId) {
 			userinfobyevent = UserInfoByEventId{
 				UserID:     primitiveToString(eventParticipantInfo[i].UserID),
 				EventUID:   primitiveToString(eventParticipantInfo[i].EventUID),

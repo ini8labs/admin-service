@@ -1,7 +1,7 @@
 package apis
 
 import (
-	"admin-service/docs"
+	"github.com/admin-service/docs"
 
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"

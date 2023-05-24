@@ -1,4 +1,4 @@
-module admin-service
+module github.com/admin-service
 
 go 1.20
 
