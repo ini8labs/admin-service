@@ -17,11 +17,11 @@ func NewServer(server Server) error {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	// API end point
-	r.GET("/api/v1/user", server.UserInfo)
+	r.GET("/api/v1/user", server.userInfo)
 
-	r.GET("/api/v1/users", server.UserInfoByEventId)
+	r.GET("/api/v1/users", server.userInfoByEventId)
 
-	r.GET("/api/v1/event", server.EventInfo)
+	r.GET("/api/v1/event", server.eventInfo)
 	r.POST("/api/v1/event", server.addNewEvent)
 	r.DELETE("/api/v1/event/:EventUID", server.deleteEvent)
 

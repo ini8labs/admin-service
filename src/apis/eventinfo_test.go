@@ -76,7 +76,7 @@ func Test_initializeEventInfo(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := initializeEventInfo(tt.args.lottteryEventInfo); !reflect.DeepEqual(got, tt.want) {
+			if got := InitializeEventInfo(tt.args.lottteryEventInfo); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("initializeEventInfo() = %v, want %v", got, tt.want)
 			}
 		})
