@@ -124,7 +124,7 @@ func validateAddEvent(newEvent AddNewEventReq) (lsdb.LotteryEventInfo, error) {
 	return eventInfo, nil
 }
 
-func initializeEventInfo(lottteryEventInfo []lsdb.LotteryEventInfo) []EventsInfo {
+func InitializeEventInfo(lottteryEventInfo []lsdb.LotteryEventInfo) []EventsInfo {
 	var eventsInfoArr []EventsInfo
 
 	for i := 0; i < len(lottteryEventInfo); i++ {
@@ -224,7 +224,7 @@ func (s Server) deleteEvent(c *gin.Context) {
 	c.JSON(http.StatusNoContent, "event deleted successfully")
 }
 
-func (s Server) EventInfo(c *gin.Context) {
+func (s Server) eventInfo(c *gin.Context) {
 
 	eventType := c.Query("eventType")
 	date := c.Query("date")
@@ -284,7 +284,7 @@ func (s Server) getEventInfoByDateRange(startDate, endDate string) ([]EventsInfo
 		return []EventsInfo{}, err
 	}
 
-	result := initializeEventInfo(resp)
+	result := InitializeEventInfo(resp)
 	return result, nil
 }
 
@@ -294,7 +294,7 @@ func (s Server) getEventInfo(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, "Server Error")
 	}
 
-	result := initializeEventInfo(resp)
+	result := InitializeEventInfo(resp)
 	c.JSON(http.StatusOK, result)
 }
 
@@ -326,7 +326,7 @@ func (s Server) getEventInfoByType(eventType string) ([]EventsInfo, error) {
 		return []EventsInfo{}, err
 	}
 
-	eventInfo := initializeEventInfo(resp)
+	eventInfo := InitializeEventInfo(resp)
 	return eventInfo, nil
 }
 
@@ -348,6 +348,6 @@ func (s Server) getEventInfoByDate(date string) ([]EventsInfo, error) {
 		return []EventsInfo{}, err
 	}
 
-	result := initializeEventInfo(resp)
+	result := InitializeEventInfo(resp)
 	return result, nil
 }

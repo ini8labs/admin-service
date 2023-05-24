@@ -54,7 +54,7 @@ func initializeUserInfoByUserId(userInfo *lsdb.UserInfo, userId string) UserInfo
 	return userinfo
 }
 
-func (s Server) UserInfo(c *gin.Context) {
+func (s Server) userInfo(c *gin.Context) {
 
 	phonenumber := c.Query("phone")
 	uid := c.Query("uid")
@@ -166,7 +166,7 @@ func (s Server) getUserByQueryParams(phonenumber, uid, govid string) (UserInfo, 
 	return userInfo, err
 }
 
-func (s Server) UserInfoByEventId(c *gin.Context) {
+func (s Server) userInfoByEventId(c *gin.Context) {
 
 	eventId := c.Query("eventId")
 	validation, _ := s.validateEventId(eventId)
