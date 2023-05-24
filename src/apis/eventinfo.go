@@ -224,7 +224,7 @@ func (s Server) deleteEvent(c *gin.Context) {
 	c.JSON(http.StatusNoContent, "event deleted successfully")
 }
 
-func (s Server) eventInfo(c *gin.Context) {
+func (s Server) EventInfo(c *gin.Context) {
 
 	eventType := c.Query("eventType")
 	date := c.Query("date")
