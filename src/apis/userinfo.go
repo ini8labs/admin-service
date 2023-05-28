@@ -119,7 +119,7 @@ func (s Server) getUserInfoByUID(uid string) (UserInfo, error) {
 	return userInfo, nil
 }
 
-func (s Server) initializeUserInfobByEventId(eventParticipantInfo []lsdb.EventParticipantInfo, eventId string) ([]UserInfoByEventId, error) {
+func (s Server) InitializeUserInfobByEventId(eventParticipantInfo []lsdb.EventParticipantInfo, eventId string) ([]UserInfoByEventId, error) {
 	var userInfoArr []UserInfoByEventId
 
 	for i := 0; i < len(eventParticipantInfo); i++ {
@@ -183,6 +183,6 @@ func (s Server) userInfoByEventId(c *gin.Context) {
 		return
 	}
 
-	result, _ := s.initializeUserInfobByEventId(resp, eventId)
+	result, _ := s.InitializeUserInfobByEventId(resp, eventId)
 	c.JSON(http.StatusOK, result)
 }
